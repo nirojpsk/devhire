@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import Developer from "../models/DeveloperProfile.js";
 import Client from "../models/ClientProfile.js";
 import generateToken from "../utils/generateToken.js";
-
+import mongoose from "mongoose";
 
 // 1. TO REGISTER A NEW USER    
 

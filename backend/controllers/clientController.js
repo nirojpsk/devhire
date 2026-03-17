@@ -1,4 +1,5 @@
 import Client from "../models/ClientProfile.js";
+import mongoose from "mongoose";
 
 //1.CREATE CLIENT PROFILE
 

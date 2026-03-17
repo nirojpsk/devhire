@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
             enum: ["developer", "client", "admin"],
             required: true,
         },
+        isBanned: {
+            type: Boolean,
+            default: false,
+        },
         profilePicture: {
             type: String,
             default: "https://cdn-icons-png.flaticon.com/512/419/149071.png",
