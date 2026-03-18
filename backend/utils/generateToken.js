@@ -21,6 +21,6 @@ const generateToken = (res, user) => {
         email: user.email,
         role: user.role
     }
-}
+};
 
 export default generateToken;

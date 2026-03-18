@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             minlength: 8,
             maxlength: 200,
-            select: false,
+            // select: false,
         },
         role: {
             type: String,
@@ -72,14 +72,13 @@ const userSchema = new mongoose.Schema(
 );
 
 //We should HASH the passoword before saving it in the database
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
     if (!this.isModified("password")) {
-        return next();
+        return;
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
-
 //In order to compare whether the password entered by the user matches or not [is same or different]
 //It stops us from rehashing the password if it is already hashed
 

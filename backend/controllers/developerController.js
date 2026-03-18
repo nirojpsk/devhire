@@ -41,6 +41,7 @@ const updateDeveloperProfile = async (req, res) => {
         if (bio) developer.bio = bio;
         if (skills) developer.skills = skills;
         if (links) developer.links = links;
+        if (availability) developer.availability = availability;
         developer.experienceYears = experienceYears ?? developer.experienceYears;
         developer.rate = rate ?? developer.rate;
 

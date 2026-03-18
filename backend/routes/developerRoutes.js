@@ -5,7 +5,7 @@ import express from "express";
 
 const router = express.Router();
 
-router.post("/profile", checkAuth, authorizeRoles("developer", createDeveloperProfile));
+router.post("/profile", checkAuth, authorizeRoles("developer"), createDeveloperProfile);
 router.get("/profile", checkAuth, authorizeRoles("developer"), getDeveloperProfile);
 router.put("/profile", checkAuth, authorizeRoles("developer"), updateDeveloperProfile);
 router.post("/:developerId/review", checkAuth, authorizeRoles("client"), addReview);

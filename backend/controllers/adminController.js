@@ -1,5 +1,5 @@
-import User from "../models/User";
-import Project from "../models/Project";
+import User from "../models/User.js";
+import Project from "../models/Project.js";
 
 // 1. Get all Users
 
@@ -98,12 +98,17 @@ const banUser = async (req, res) => {
             });
         }
 
-        user.isBanned = true; // make sure this field exists in User model
+        if (user.role === "admin") {
+            return res.status(400).json({
+                message: "Cannot ban an admin user",
+            });
+        }
 
-        await user.save();
+        const newBanStatus = !user.isBanned;
+        await User.findByIdAndUpdate(userId, { isBanned: newBanStatus });
 
         res.status(200).json({
-            message: "User banned successfully",
+            message: newBanStatus ? "User banned successfully" : "User unbanned successfully",
         });
 
     } catch (err) {

@@ -18,14 +18,15 @@ const router = express.Router();
 
 // public or developer
 router.get("/", getAllProjects);
-router.get("/:projectId", getSingleProject);
 
-// client only
-router.post("/", checkAuth, authorizeRoles("client"), createProject);
+// client only — must come before /:projectId so "my-projects" isn't matched as a param
 router.get("/my-projects", checkAuth, authorizeRoles("client"), getClientProjects);
+
+router.get("/:projectId", getSingleProject);
+router.post("/", checkAuth, authorizeRoles("client"), createProject);
 router.put("/:projectId", checkAuth, authorizeRoles("client"), updateProject);
-router.delete("/projectId", checkAuth, authorizeRoles("client"), deleteProject);
-router.put("/projectId/select", checkAuth, authorizeRoles("client"), selectDeveloper);
+router.delete("/:projectId", checkAuth, authorizeRoles("client"), deleteProject);
+router.put("/:projectId/select", checkAuth, authorizeRoles("client"), selectDeveloper);
 router.put("/:projectId/status", checkAuth, authorizeRoles("client"), updateProjectStatus);
 
 export default router;

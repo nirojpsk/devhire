@@ -33,14 +33,14 @@ const developerSchema = new mongoose.Schema({
     },
     bio: {
         type: String,
-        required: true,
         trim: true,
-        minlength: 20,
+        minlength: 10,
         maxlength: 200,
+        default: "default bio"
     },
     skills: {
         type: [String],
-        required: true,
+        default: [],
     },
     experienceYears: {
         type: Number,
@@ -91,7 +91,6 @@ const developerSchema = new mongoose.Schema({
     },
     rate: {
         type: Number,
-        required: true,
         default: 0,
     },
     reviews: [reviewSchema],
@@ -108,18 +107,19 @@ const developerSchema = new mongoose.Schema({
 );
 
 //In order to calculate the total ratings and the average ratings of the developer
-developerSchema.pre("save", function (next) {
-    if (this.reviews.length > 0) {
-        this.totalReviews = this.reviews.length;
-        this.averageRating =
-            Math.round(
-                (this.reviews.reduce((acc, review) => acc + review.rating, 0) /
-                    this.reviews.length) *
-                10
-            ) / 10;
+developerSchema.pre("save", function () {
+    if (!this.reviews || this.reviews.length === 0) {
+        return;
     }
-    next();
-})
+
+    this.totalReviews = this.reviews.length;
+    this.averageRating =
+        Math.round(
+            (this.reviews.reduce((acc, review) => acc + review.rating, 0) /
+                this.reviews.length) *
+            10
+        ) / 10;
+});
 const Developer = mongoose.model("Developer", developerSchema);
 export default Developer;
 

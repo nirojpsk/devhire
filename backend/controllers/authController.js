@@ -20,8 +20,7 @@ const registerUser = async (req, res) => {
 
         //In order to validate the role of the user
 
-        const validRoles = ["developer", "client", "admin"];
-        if (!validRoles.includes(role)) {
+        if (!["client", "developer"].includes(role)) {
             return res.status(400).json({
                 message: "Invalid role selected",
             });
@@ -79,7 +78,7 @@ const registerUser = async (req, res) => {
 
         //To generate the cookies 
 
-        generateToken(res, user._id, user.role);
+        generateToken(res, user);
 
         res.status(201).json({
             message: "User Registered Successfully",
@@ -131,7 +130,7 @@ const loginUser = async (req, res) => {
 
         //In order to generate the token
 
-        generateToken(res, user._id, user.role);
+        generateToken(res, user);
 
         res.status(200).json({
             message: "User logged in successfully",
@@ -157,9 +156,10 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
     try {
 
-        res.clearCookie("token", "", {
+        res.clearCookie("token", {
             httpOnly: true,
-            expires: new Date(0),
+            secure: false,
+            sameSite: "strict",
         });
         res.status(200).json({
             message: "Logout Success!!!"

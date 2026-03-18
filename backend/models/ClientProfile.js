@@ -9,16 +9,16 @@ const clientSchema = new mongoose.Schema({
     companyName: {
         type: String,
         trim: true,
-        required: true,
         minlength: 10,
-        maxlength: 100
+        maxlength: 100,
+        default: "sample company"
     },
     bio: {
         type: String,
         trim: true,
-        required: true,
         minlength: 10,
-        maxlength: 1000
+        maxlength: 1000,
+        default: "default bio"
     },
     website: {
         type: String,

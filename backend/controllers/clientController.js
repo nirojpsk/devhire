@@ -11,25 +11,25 @@ const createClientProfile = async (req, res) => {
             return res.status(400).json({
                 message: "Client Profile already exists",
             });
-            const { companyName, bio, website } = req.body;
-            if (!companyName || !bio) {
-                return res.status(400).json({
-                    message: "Please fill all the required fields",
-                });
-            }
-            const clientProfile = await Client.create({
-                userId,
-                companyName,
-                bio,
-                website,
-                totalProjectsPosted: 0,
-            });
-
-            res.status(200).json({
-                message: "Client profile created successfully",
-                profile: clientProfile,
+        }
+        const { companyName, bio, website } = req.body;
+        if (!companyName || !bio) {
+            return res.status(400).json({
+                message: "Please fill all the required fields",
             });
         }
+        const clientProfile = await Client.create({
+            userId,
+            companyName,
+            bio,
+            website,
+            totalProjectsPosted: 0,
+        });
+
+        res.status(201).json({
+            message: "Client profile created successfully",
+            profile: clientProfile,
+        });
     } catch (err) {
         res.status(500).json({
             message: "Error creating client profile",

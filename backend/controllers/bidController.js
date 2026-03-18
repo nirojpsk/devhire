@@ -70,7 +70,7 @@ const getBidsForProject = async (req, res) => {
 
         if (!project) {
             return res.status(404).json({
-                messge: "Project not found",
+                message: "Project not found",
             });
         }
 
