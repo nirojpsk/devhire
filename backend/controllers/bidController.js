@@ -124,6 +124,12 @@ const updateBid = async (req, res) => {
 
         bid.editCount += 1;
 
+        if (bid.editCount > 2){
+            return res.status(400).json({
+                message: "Bid can only be updated twice"
+            });
+        }
+
         await bid.save();
 
         res.status(200).json({

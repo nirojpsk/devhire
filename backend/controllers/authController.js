@@ -1,6 +1,4 @@
 import User from "../models/User.js";
-import Developer from "../models/DeveloperProfile.js";
-import Client from "../models/ClientProfile.js";
 import generateToken from "../utils/generateToken.js";
 import mongoose from "mongoose";
 
@@ -61,20 +59,6 @@ const registerUser = async (req, res) => {
             profilePicture,
             address,
         });
-
-        //To create a profile based on the roles
-
-        if (role == "developer") {
-            await Developer.create({
-                userId: user._id,
-            });
-        }
-
-        if (role == "client") {
-            await Client.create({
-                userId: user._id,
-            });
-        }
 
         //To generate the cookies 
 
