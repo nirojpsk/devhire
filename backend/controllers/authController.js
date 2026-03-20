@@ -34,12 +34,19 @@ const registerUser = async (req, res) => {
 
         // To validate the user password
 
-        if (password.length < 8) {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+
+        if (!passwordRegex.test(password)) {
             return res.status(400).json({
-                message: "Password must be at least 8 characters",
+                message: "Password must be at least 8 characters and include uppercase, lowercase, and a special character",
             });
         }
-
+        
+        if (!/^\d+$/.test(address.zipCode)) {
+            return res.status(400).json({
+                message: "Zip code must contain only numbers",
+            });
+        }
         //To check whether there is a user with the same email or not
 
         const existingUser = await User.findOne({ email: email.toLowerCase() });
