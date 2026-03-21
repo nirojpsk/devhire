@@ -1,0 +1,129 @@
+import { Form, Button, Container } from 'react-bootstrap';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useCreateProjectMutation } from '../../api/projectApiSlice';
+
+function CreateProjectPage() {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [budgetMin, setBudgetMin] = useState('');
+    const [budgetMax, setBudgetMax] = useState('');
+    const [skillsRequired, setSkillsRequired] = useState('');
+    const [deadline, setDeadline] = useState('');
+
+    const [createProject, { isLoading }] = useCreateProjectMutation();
+    const navigate = useNavigate();
+
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+
+        if (!title || !description || !budgetMin || !budgetMax || !skillsRequired || !deadline) {
+            toast.error('Please fill all required fields');
+            return;
+        }
+
+        if (Number(budgetMin) > Number(budgetMax)) {
+            toast.error('Minimum budget cannot be greater than Maximum budget');
+            return;
+        }
+
+        const skillsArray = skillsRequired.split(',').map((skill) => skill.trim()).filter((skill) => skill !== '');
+
+        if (skillsArray.length === 0) {
+            toast.error('Please enter at least one skill');
+            return;
+        }
+
+        try {
+            const res = await createProject({
+                title,
+                description,
+                budget: {
+                    min: Number(budgetMin),
+                    max: Number(budgetMax),
+                },
+                skillsRequired: skillsArray,
+                deadline,
+            }).unwrap();
+            toast.success(res?.message || 'Project created successfully');
+            navigate('/client/dashboard');
+        } catch (err) {
+            toast.error(
+                err?.data?.message ||
+                err?.data?.error ||
+                err?.error ||
+                'Error creating Project'
+            );
+        }
+    };
+
+    return (
+        <Container className='py-2' style={{ maxWidth: '700px' }}>
+            <h2 className='mb-4'>Create Project</h2>
+
+            <Form onSubmit={submitHandler}>
+
+                <Form.Group controlId='title' className='my-3'>
+                    <Form.Label>Project Title</Form.Label>
+                    <Form.Control type='text' value={title} onChange={e => setTitle(e.target.value)} placeholder='Enter Project Title' />
+                </Form.Group>
+
+                <Form.Group controlId='description' className='my-3'>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control as='textarea' rows={5} value={description} onChange={e => setDescription(e.target.value)} placeholder='Describe your Project' />
+                </Form.Group>
+
+                <Form.Group controlId='budgetMin' className='my-3'>
+                    <Form.Label>Minimum Budget</Form.Label>
+                    <Form.Control
+                        type='number'
+                        value={budgetMin}
+                        onChange={(e) => setBudgetMin(e.target.value)}
+                        placeholder='Enter minimum budget'
+                    />
+                </Form.Group>
+
+                <Form.Group controlId='budgetMax' className='my-3'>
+                    <Form.Label>Maximum Budget</Form.Label>
+                    <Form.Control
+                        type='number'
+                        value={budgetMax}
+                        onChange={(e) => setBudgetMax(e.target.value)}
+                        placeholder='Enter maximum budget'
+                    />
+                </Form.Group>
+
+                <Form.Group controlId='skillsRequired' className='my-3'>
+                    <Form.Label>Skills Required</Form.Label>
+                    <Form.Control
+                        type='text'
+                        value={skillsRequired}
+                        onChange={(e) => setSkillsRequired(e.target.value)}
+                        placeholder='Example: React, Node.js, MongoDB'
+                    />
+                    <Form.Text muted>
+                        Enter skills separated by commas.
+                    </Form.Text>
+                </Form.Group>
+
+                <Form.Group controlId='deadline' className='my-3'>
+                    <Form.Label>Deadline</Form.Label>
+                    <Form.Control
+                        type='date'
+                        value={deadline}
+                        onChange={(e) => setDeadline(e.target.value)}
+                    />
+                </Form.Group>
+
+                <Button type='submit' className='btn btn-sm' disabled={isLoading}>
+                    {isLoading ? 'Creating...' : 'Create Project'}
+                </Button>
+
+            </Form>
+        </Container>
+    );
+}
+
+export default CreateProjectPage;
