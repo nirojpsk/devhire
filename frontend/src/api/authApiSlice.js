@@ -10,7 +10,7 @@ const authApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['User',]
+            invalidatesTags: ['User'],
         }),
 
         login: builder.mutation({
