@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import mongoose from "mongoose";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 // 1. TO REGISTER A NEW USER    
 
 const registerUser = async (req, res) => {
@@ -149,8 +151,8 @@ const logoutUser = async (req, res) => {
 
         res.clearCookie("token", {
             httpOnly: true,
-            secure: false,
-            sameSite: "strict",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
         });
         res.status(200).json({
             message: "Logout Success!!!"
