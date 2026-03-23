@@ -2158,28 +2158,6 @@ textarea.form-control {
 }
 
 @media (max-width: 1199px) {
-  .metric-grid,
-  .feature-grid,
-  .audience-grid,
-  .showcase-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .hero-panel,
-  .market-hero,
-  .project-detail-banner,
-  .project-detail-content,
-  .project-editor-layout,
-  .market-layout,
-  .detail-layout,
-  .hero-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .market-sidebar__sticky {
-    position: static;
-  }
-
   .dashboard-metrics--developer {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2192,17 +2170,38 @@ textarea.form-control {
     grid-template-columns: 220px minmax(0, 1fr);
     width: min(1320px, calc(100% - 28px));
   }
+}
+
+@media (max-width: 1024px) {
+  .metric-grid,
+  .feature-grid,
+  .audience-grid,
+  .showcase-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .auth-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel,
+  .market-hero,
+  .project-detail-banner,
+  .project-detail-content,
+  .project-editor-layout,
+  .market-layout,
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .market-sidebar__sticky {
+    position: static;
+  }
 
   .hero-metrics,
   .project-facts-grid,
   .project-editor-form__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1024px) {
-  .auth-panel {
-    grid-template-columns: 1fr;
   }
 }
 
