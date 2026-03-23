@@ -57,6 +57,12 @@ const placeBid = async (req, res) => {
             });
         }
 
+        if (developerProfile.availability === "busy") {
+            return res.status(400).json({
+                message: "Your profile is currently set to busy. Change your availability to available before placing a bid",
+            });
+        }
+
         const project = await Project.findById(projectId);
 
         if (!project) {

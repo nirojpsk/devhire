@@ -20,7 +20,9 @@ function PlaceBidPage() {
     const { data: projectData } = useGetProjectByIdQuery(projectId);
     const { data: developerProfileData, isLoading: loadingDeveloperProfile } = useGetDeveloperProfileQuery();
     const project = projectData?.project;
-    const hasDeveloperProfile = !!developerProfileData?.profile;
+    const developerProfile = developerProfileData?.profile;
+    const hasDeveloperProfile = !!developerProfile;
+    const isDeveloperBusy = developerProfile?.availability === "busy";
     const remainingDays = project?.deadline
         ? Math.ceil((new Date(project.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
         : null;
@@ -30,6 +32,11 @@ function PlaceBidPage() {
 
         if (!bidAmount || !proposal || !deliveryTime) {
             toast.error('Please fill all required fields');
+            return;
+        }
+
+        if (isDeveloperBusy) {
+            toast.error('Your availability is set to busy. Change it back to available before placing a bid.');
             return;
         }
 
@@ -91,6 +98,12 @@ function PlaceBidPage() {
                 <Alert variant='warning'>
                     Please create your developer profile before placing a bid.{' '}
                     <Link to='/developer/profile/create'>Create Profile</Link>
+                </Alert>
+            ) : isDeveloperBusy ? (
+                <Alert variant='warning'>
+                    Your availability is currently set to busy.{' '}
+                    <Link to='/developer/profile/edit'>Change it back to available</Link>{' '}
+                    before placing a new bid.
                 </Alert>
             ) : (
             <Form onSubmit={submitHandler}>

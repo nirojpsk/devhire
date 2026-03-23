@@ -22,7 +22,9 @@ function ProjectDetailPage() {
         userInfo?.id === project?.clientId?._id;
 
     const isProjectOpen = project?.status === "open";
-    const hasDeveloperProfile = !!developerProfileData?.profile;
+    const developerProfile = developerProfileData?.profile;
+    const hasDeveloperProfile = !!developerProfile;
+    const isDeveloperBusy = developerProfile?.availability === "busy";
     const hasAlreadyPlacedBid = myBidsData?.bids?.some((bid) => {
         const bidProjectId = typeof bid?.projectId === "object" ? bid.projectId?._id : bid?.projectId;
         return String(bidProjectId) === String(project?._id);
@@ -97,7 +99,15 @@ function ProjectDetailPage() {
                                             </Alert>
                                         ) : null}
 
-                                        {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid ? (
+                                        {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid && isDeveloperBusy ? (
+                                            <Alert variant="warning" className="mb-0">
+                                                Your availability is currently set to busy.{" "}
+                                                <Link to="/developer/profile/edit">Change it back to available</Link>{" "}
+                                                to place a bid.
+                                            </Alert>
+                                        ) : null}
+
+                                        {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid && !isDeveloperBusy ? (
                                             <Button as={Link} to={`/projects/${project._id}/bid`}>
                                                 Place Bid
                                             </Button>
