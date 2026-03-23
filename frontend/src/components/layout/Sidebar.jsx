@@ -52,6 +52,12 @@ const ROLE_LABELS = {
     admin: "Platform Control",
 };
 
+const ROLE_SUBTITLES = {
+    client: "Client Workspace",
+    developer: "Senior Developer",
+    admin: "Operations Admin",
+};
+
 function Sidebar() {
     const { userInfo } = useSelector((state) => state.auth);
     const [logout] = useLogoutMutation();
@@ -76,22 +82,20 @@ function Sidebar() {
     return (
         <aside className="dashboard-sidebar">
             <div className="dashboard-sidebar__inner">
-                <div className="sidebar-card dashboard-profile-card">
-                    <div className="dashboard-profile-card__top">
-                        <span className="dashboard-profile-card__avatar">
-                            <FaUser />
-                        </span>
-                        <div>
-                            <h3>{userInfo?.name || "DevHire User"}</h3>
-                            <p>{userInfo?.email || role}</p>
-                        </div>
+                <div className="dashboard-profile-card">
+                    <span className="dashboard-profile-card__avatar">
+                        {userInfo?.name?.slice?.(0, 2)?.toUpperCase?.() || <FaUser />}
+                    </span>
+                    <div className="dashboard-profile-card__identity">
+                        <h3>{userInfo?.name || "DevHire User"}</h3>
+                        <p>{ROLE_SUBTITLES[role]}</p>
                     </div>
                     <span className={`status-pill status-pill--${role === "developer" ? "available" : role === "admin" ? "open" : "reviewing"}`}>
                         {ROLE_LABELS[role]}
                     </span>
                 </div>
 
-                <nav className="sidebar-card dashboard-sidebar__nav" aria-label="Dashboard navigation">
+                <nav className="dashboard-sidebar__nav" aria-label="Dashboard navigation">
                     {items.map(({ to, label, icon, end }) => (
                         <NavLink
                             key={to}
@@ -109,15 +113,7 @@ function Sidebar() {
                     ))}
                 </nav>
 
-                <div className="sidebar-card stacked-info">
-                    <h3>Need a quick action?</h3>
-                    <p>
-                        {role === "client"
-                            ? "Post a new project or review incoming proposals from your workspace."
-                            : role === "developer"
-                                ? "Jump back into active proposals or discover fresh opportunities."
-                                : "Review platform activity and keep your marketplace healthy."}
-                    </p>
+                <div className="dashboard-sidebar__footer">
                     <Button
                         as={NavLink}
                         to={
@@ -131,13 +127,11 @@ function Sidebar() {
                     >
                         {role === "client" ? "Post Project" : role === "developer" ? "Browse Projects" : "Open Admin Tools"}
                     </Button>
-                </div>
 
-                <div className="sidebar-card stacked-info">
-                    <Button tone="light" onClick={logoutHandler}>
+                    <button type="button" className="dashboard-signout" onClick={logoutHandler}>
                         <FaArrowLeft />
-                        Sign Out
-                    </Button>
+                        <span>Sign Out</span>
+                    </button>
                 </div>
             </div>
         </aside>
