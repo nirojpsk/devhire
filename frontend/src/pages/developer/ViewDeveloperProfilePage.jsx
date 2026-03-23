@@ -8,7 +8,7 @@ function ViewDeveloperProfilePage() {
     const { userId } = useParams();
     const { data, isLoading, error } = useGetDeveloperProfileByUserIdQuery(userId);
     const profile = data?.profile;
-    const availabilityTone = profile?.availability === "available" ? "available" : "reviewing";
+    const availabilityTone = profile?.availability === "busy" ? "busy" : "available";
 
     return (
         <div>

@@ -633,6 +633,7 @@ p {
   background: var(--danger-soft);
 }
 
+.status-pill--busy,
 .status-pill--reviewing {
   color: #8b5e10;
   background: var(--warning-soft);

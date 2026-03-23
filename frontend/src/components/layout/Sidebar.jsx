@@ -51,7 +51,6 @@ const NAVIGATION = {
 
 const ROLE_LABELS = {
     client: "Hiring Workspace",
-    developer: "Available for Hire",
     admin: "Platform Control",
 };
 
@@ -67,18 +66,31 @@ function Sidebar() {
     const { error: clientProfileError } = useGetClientProfileQuery(undefined, {
         skip: userInfo?.role !== "client",
     });
-    const { error: developerProfileError } = useGetDeveloperProfileQuery(undefined, {
+    const { data: developerProfileData, error: developerProfileError } = useGetDeveloperProfileQuery(undefined, {
         skip: userInfo?.role !== "developer",
     });
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const role = userInfo?.role || "developer";
+    const developerAvailability = developerProfileData?.profile?.availability || "available";
     const isMissingProfile = role === "client"
         ? clientProfileError?.status === 404
         : role === "developer"
             ? developerProfileError?.status === 404
             : false;
+    const statusLabel = role === "developer"
+        ? developerAvailability === "busy"
+            ? "Busy"
+            : "Available for Hire"
+        : ROLE_LABELS[role];
+    const statusTone = role === "developer"
+        ? developerAvailability === "busy"
+            ? "busy"
+            : "available"
+        : role === "admin"
+            ? "open"
+            : "reviewing";
 
     const items = (NAVIGATION[role] || []).map((item) => {
         if (item.key !== "profile" || !isMissingProfile) {
@@ -116,8 +128,8 @@ function Sidebar() {
                         <h3>{userInfo?.name || "DevHire User"}</h3>
                         <p>{ROLE_SUBTITLES[role]}</p>
                     </div>
-                    <span className={`status-pill status-pill--${role === "developer" ? "available" : role === "admin" ? "open" : "reviewing"}`}>
-                        {ROLE_LABELS[role]}
+                    <span className={`status-pill status-pill--${statusTone}`}>
+                        {statusLabel}
                     </span>
                 </div>
 

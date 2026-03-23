@@ -7,7 +7,7 @@ import Button from "../../components/ui/Button";
 function DeveloperProfilePage() {
     const { data, isLoading, error } = useGetDeveloperProfileQuery();
     const profile = data?.profile;
-    const availabilityTone = profile?.availability === "available" ? "available" : "reviewing";
+    const availabilityTone = profile?.availability === "busy" ? "busy" : "available";
 
     return (
         <div>
