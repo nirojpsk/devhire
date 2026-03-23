@@ -1,6 +1,7 @@
 import {
     placeBid,
     getMyBids,
+    getClientBids,
     getSingleBid,
     getBidsForProject,
     updateBid,
@@ -17,6 +18,8 @@ const router = express.Router();
 
 // Developer
 router.get("/my-bids", checkAuth, authorizeRoles("developer"), getMyBids);
+// Client (specific routes first to avoid collision with "/:bidId")
+router.get("/client/all", checkAuth, authorizeRoles("client"), getClientBids);
 router.get("/:bidId", checkAuth, authorizeRoles("developer"), getSingleBid);
 router.post("/:projectId", checkAuth, authorizeRoles("developer"), placeBid);
 router.put("/:bidId", checkAuth, authorizeRoles("developer"), updateBid);

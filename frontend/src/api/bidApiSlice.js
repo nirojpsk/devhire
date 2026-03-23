@@ -34,6 +34,13 @@ const bidApiSlice = apiSlice.injectEndpoints({
             providesTags: ['Bid'],
         }),
 
+        getClientBids: builder.query({
+            query: () => ({
+                url: `${BID_URL}/client/all`,
+            }),
+            providesTags: ['Bid'],
+        }),
+
         updateBid: builder.mutation({
             query: ({ bidId, data }) => ({
                 url: `${BID_URL}/${bidId}`,
@@ -75,6 +82,7 @@ export const {
     useGetBidsForProjectQuery,
     useGetBidByIdQuery,
     useGetMyBidsQuery,
+    useGetClientBidsQuery,
     useUpdateBidMutation,
     useDeleteBidMutation,
     useAcceptBidMutation,

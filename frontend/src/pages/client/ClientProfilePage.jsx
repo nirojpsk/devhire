@@ -57,14 +57,24 @@ function ClientProfilePage() {
                             )}
                         </Card.Text>
 
-                        <Button
-                            as={Link}
-                            to="/client/profile/edit"
-                            variant="warning"
-                            size="sm"
-                        >
-                            Edit Profile
-                        </Button>
+                        <div className="d-flex gap-2 flex-wrap">
+                            <Button
+                                as={Link}
+                                to="/client/profile/edit"
+                                variant="warning"
+                                size="sm"
+                            >
+                                Edit Profile
+                            </Button>
+                            <Button
+                                as={Link}
+                                to="/change-password"
+                                variant="outline-dark"
+                                size="sm"
+                            >
+                                Change Password
+                            </Button>
+                        </div>
                     </Card.Body>
                 </Card>
             )}

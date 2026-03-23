@@ -362,9 +362,41 @@ const rejectBid = async (req, res) => {
     }
 };
 
+// 2b. GET ALL BIDS FOR CLIENT'S PROJECTS [CLIENT]
+const getClientBids = async (req, res) => {
+    try {
+        const clientId = req.user._id;
+        const projects = await Project.find({ clientId }).select("_id");
+        const projectIds = projects.map((project) => project._id);
+
+        if (projectIds.length === 0) {
+            return res.status(200).json({
+                message: "Client bids fetched successfully",
+                bids: [],
+            });
+        }
+
+        const bids = await Bid.find({ projectId: { $in: projectIds } })
+            .populate("developerId", "name email profilePicture")
+            .populate("projectId", "title status budget deadline")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            message: "Client bids fetched successfully",
+            bids,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Error fetching client bids",
+            error: err.message,
+        });
+    }
+};
+
 export {
     placeBid,
     getMyBids,
+    getClientBids,
     getSingleBid,
     getBidsForProject,
     updateBid,

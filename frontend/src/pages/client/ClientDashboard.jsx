@@ -50,6 +50,18 @@ function ClientDashboard() {
                     </Card>
                 </Col>
 
+                <Col md={6}>
+                    <Card className="h-100 shadow-sm">
+                        <Card.Body>
+                            <Card.Title>All Bids</Card.Title>
+                            <Card.Text>See all bids submitted across your projects.</Card.Text>
+                            <Button as={Link} to="/client/bids" variant="outline-primary">
+                                View All Bids
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
                 {!profile && (
                     <Col md={6}>
                         <Card className="h-100 shadow-sm">

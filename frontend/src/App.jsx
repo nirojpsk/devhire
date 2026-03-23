@@ -28,6 +28,8 @@ import EditClientProfilePage from './pages/client/EditClientProfilePage';
 import ManageProjectsPage from './pages/admin/ManageProjectsPage';
 import ManageUsersPage from './pages/admin/ManageUsersPage';
 import AdminUserProfilePage from './pages/admin/AdminUserProfilePage';
+import ChangePasswordPage from './pages/auth/ChangePasswordPage';
+import ClientBidsPage from './pages/bids/ClientBidsPage';
 
 function App() {
   return (
@@ -42,13 +44,14 @@ function App() {
         <Route path='/projects/:projectId' element={<ProjectDetailsPage />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path='/protected' element={<h1>Protected Page</h1>} />
+          <Route path='/change-password' element={<ChangePasswordPage />} />
           <Route element={<RoleRoute allowedRoles={["client"]} />}>
             <Route path='/client/dashboard' element={<ClientDashboard />} />
             <Route path='/projects/create' element={<CreateProjectPage />} />
             <Route path='/my-projects' element={<MyProjectsPage />} />
             <Route path='/projects/:projectId/edit' element={<EditProjectPage />} />
             <Route path='/projects/:projectId/bids' element={<ProjectBidsPage />} />
+            <Route path='/client/bids' element={<ClientBidsPage />} />
             <Route path='/client/profile/create' element={<CreateClientProfilePage />} />
 <Route path='/client/profile' element={<ClientProfilePage />} />
 <Route path='/client/profile/edit' element={<EditClientProfilePage />} />
