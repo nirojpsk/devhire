@@ -122,7 +122,7 @@ const createDeveloperProfile = async (req, res) => {
         const { bio, skills, experienceYears, availability, links, rate } = req.body;
         if (!bio || !skills || !rate) {
             return res.status(400).json({
-                message: "Pleae fill required fields"
+                message: "Please fill required fields"
             });
         }
         const developerProfile = await Developer.create({
@@ -144,8 +144,15 @@ const createDeveloperProfile = async (req, res) => {
         });
     }
     catch (err) {
+        if (err.name === "ValidationError") {
+            const firstValidationError = Object.values(err.errors)[0]?.message;
+            return res.status(400).json({
+                message: firstValidationError || "Validation failed while creating developer profile",
+                error: err.message,
+            });
+        }
         res.status(500).json({
-            message: "Error while adding the Review",
+            message: "Error while creating developer profile",
             error: err.message,
         });
     }

@@ -15,6 +15,16 @@ import CreateProjectPage from './pages/projects/CreateProjectPage';
 import MyProjectsPage from './pages/projects/MyProjectsPage';
 import ProjectDetailsPage from './pages/projects/ProjectDetailPage';
 import EditProjectPage from './pages/projects/EditProjectPage';
+import PlaceBidPage from './pages/bids/PlaceBidPage';
+import ProjectBidsPage from './pages/bids/ProjectBidsPage';
+import EditBidPage from './pages/bids/EditBidPage';
+import MyBidsPage from './pages/bids/MyBidsPage';
+import CreateDevProfilePage from './pages/developer/CreateDevProfilePage';
+import DeveloperProfilePage from './pages/developer/DeveloperProfilePage';
+import EditDeveloperProfilePage from './pages/developer/EditDeveloperProfilePage';
+import CreateClientProfilePage from './pages/client/CreateClientProfilePage';
+import ClientProfilePage from './pages/client/ClientProfilePage';
+import EditClientProfilePage from './pages/client/EditClientProfilePage';
 
 function App() {
   return (
@@ -35,10 +45,20 @@ function App() {
             <Route path='/projects/create' element={<CreateProjectPage />} />
             <Route path='/my-projects' element={<MyProjectsPage />} />
             <Route path='/projects/:projectId/edit' element={<EditProjectPage />} />
+            <Route path='/projects/:projectId/bids' element={<ProjectBidsPage />} />
+            <Route path='/client/profile/create' element={<CreateClientProfilePage />} />
+<Route path='/client/profile' element={<ClientProfilePage />} />
+<Route path='/client/profile/edit' element={<EditClientProfilePage />} />
           </Route>
 
           <Route element={<RoleRoute allowedRoles={["developer"]} />}>
             <Route path='/developer/dashboard' element={<DeveloperDashboard />} />
+            <Route path='/projects/:projectId/bid' element={<PlaceBidPage />} />
+            <Route path='/bids/:bidId/edit' element={<EditBidPage />} />
+            <Route path='/my-bids' element={<MyBidsPage />} />
+            <Route path='/developer/profile/create' element={<CreateDevProfilePage />} />
+            <Route path='/developer/profile' element={<DeveloperProfilePage />} />
+            <Route path='/developer/profile/edit' element={<EditDeveloperProfilePage />} />
           </Route>
 
           <Route element={<RoleRoute allowedRoles={["admin"]} />}>

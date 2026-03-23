@@ -3,6 +3,7 @@ import { useLoginMutation } from "../../api/authApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { setCredentials } from "../../slices/authSlice";
+import apiSlice from "../../api/apiSlice";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -39,6 +40,7 @@ function LoginPage() {
         e.preventDefault();
         try {
             const res = await login({ email, password }).unwrap();
+            dispatch(apiSlice.util.resetApiState());
             dispatch(setCredentials(res.user));
             toast.success('Login successful');
             if (res.user.role === "client") {

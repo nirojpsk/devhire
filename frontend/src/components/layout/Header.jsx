@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLogoutMutation } from "../../api/authApiSlice";
 import { clearCredentials } from "../../slices/authSlice";
+import apiSlice from '../../api/apiSlice';
 import { toast } from 'react-toastify';
 
 
@@ -16,6 +17,7 @@ function Header() {
     const logoutHandler = async () => {
         try {
             const res = await logout().unwrap();
+            dispatch(apiSlice.util.resetApiState());
             dispatch(clearCredentials());
             toast.success(res.message || 'Logged out successfully');
             navigate("/login");
