@@ -3,7 +3,8 @@ import {
     getAllUsers,
     deleteProjectAdmin,
     deleteUser,
-    banUser
+    banUser,
+    getUserProfileAdmin,
 } from "../controllers/adminController.js";
 import checkAuth from "../middleware/authMiddleware.js";
 import authorizeRoles from "../middleware/roleMiddleware.js";
@@ -16,5 +17,6 @@ router.get("/projects", checkAuth, authorizeRoles("admin"), getAllProjectsAdmin)
 router.delete("/project/:projectId", checkAuth, authorizeRoles("admin"), deleteProjectAdmin);
 router.delete("/user/:userId", checkAuth, authorizeRoles("admin"), deleteUser);
 router.put("/ban/:userId", checkAuth, authorizeRoles("admin"), banUser);
+router.get("/user/:userId/profile", checkAuth, authorizeRoles("admin"), getUserProfileAdmin);
 
 export default router;

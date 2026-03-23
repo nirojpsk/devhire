@@ -1,7 +1,7 @@
 import { Form, Button, Container, Spinner, Alert } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     useGetDeveloperProfileQuery,
     useUpdateDeveloperProfileMutation,
@@ -73,7 +73,12 @@ function EditDeveloperProfilePage() {
 
     return (
         <Container className="py-4" style={{ maxWidth: "800px" }}>
-            <h2 className="mb-4">Edit Developer Profile</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="mb-0">Edit Developer Profile</h2>
+                <Button as={Link} to="/developer/profile" variant="outline-secondary" size="sm">
+                    Back to Profile
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className="text-center">

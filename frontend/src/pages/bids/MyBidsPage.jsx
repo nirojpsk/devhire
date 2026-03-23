@@ -30,7 +30,12 @@ function MyBidsPage() {
 
     return (
         <Container className='py-4'>
-            <h2 className='mb-4'>My Bids</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>My Bids</h2>
+                <Button as={Link} to='/developer/dashboard' variant='outline-secondary' size='sm'>
+                    Back to Dashboard
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className='text-center'>

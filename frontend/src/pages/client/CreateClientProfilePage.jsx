@@ -1,6 +1,6 @@
 import { Form, Button, Container } from "react-bootstrap";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCreateClientProfileMutation } from "../../api/clientApiSlice";
 
@@ -41,7 +41,12 @@ function CreateClientProfilePage() {
 
     return (
         <Container className="py-4" style={{ maxWidth: "750px" }}>
-            <h2 className="mb-4">Create Client Profile</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="mb-0">Create Client Profile</h2>
+                <Button as={Link} to="/client/dashboard" variant="outline-secondary" size="sm">
+                    Back to Dashboard
+                </Button>
+            </div>
 
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId="companyName" className="my-3">

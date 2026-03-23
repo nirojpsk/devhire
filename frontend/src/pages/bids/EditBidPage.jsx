@@ -1,6 +1,6 @@
 import { Form, Button, Container, Spinner, Alert, Card } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
     useGetBidByIdQuery,
@@ -15,6 +15,7 @@ function EditBidPage() {
     const [updateBid, { isLoading: loadingUpdate }] = useUpdateBidMutation();
 
     const bid = data?.bid;
+    const backTo = bid?.projectId?._id ? `/projects/${bid.projectId._id}` : '/my-bids';
 
     const [bidAmount, setBidAmount] = useState('');
     const [proposal, setProposal] = useState('');
@@ -80,7 +81,12 @@ function EditBidPage() {
 
     return (
         <Container className='py-4' style={{ maxWidth: '800px' }}>
-            <h2 className='mb-4'>Edit Bid</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Edit Bid</h2>
+                <Button as={Link} to={backTo} variant='outline-secondary' size='sm'>
+                    Back
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className='text-center'>

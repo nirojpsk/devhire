@@ -1,7 +1,7 @@
 import { Form, Button, Container, Spinner, Alert } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
     useGetClientProfileQuery,
     useUpdateClientProfileMutation,
@@ -51,7 +51,12 @@ function EditClientProfilePage() {
 
     return (
         <Container className="py-4" style={{ maxWidth: "800px" }}>
-            <h2 className="mb-4">Edit Client Profile</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="mb-0">Edit Client Profile</h2>
+                <Button as={Link} to="/client/profile" variant="outline-secondary" size="sm">
+                    Back to Profile
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className="text-center">

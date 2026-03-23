@@ -1,6 +1,6 @@
 import { Form, Button, Container } from 'react-bootstrap';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCreateProjectMutation } from '../../api/projectApiSlice';
 
@@ -61,7 +61,12 @@ function CreateProjectPage() {
 
     return (
         <Container className='py-2' style={{ maxWidth: '700px' }}>
-            <h2 className='mb-4'>Create Project</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Create Project</h2>
+                <Button as={Link} to='/client/dashboard' variant='outline-secondary' size='sm'>
+                    Back to Dashboard
+                </Button>
+            </div>
 
             <Form onSubmit={submitHandler}>
 

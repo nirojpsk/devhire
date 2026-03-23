@@ -2,7 +2,7 @@ import { usePlaceBidMutation } from "../../api/bidApiSlice";
 import { Form, Button, Container } from 'react-bootstrap';
 import { useState } from "react";
 import { toast } from 'react-toastify';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 
 function PlaceBidPage() {
@@ -57,7 +57,12 @@ function PlaceBidPage() {
 
     return (
         <Container className="py-4" style={{ maxWidth: '700px' }}>
-            <h2 className="mb-4">Place Bid</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Place Bid</h2>
+                <Button as={Link} to={`/projects/${projectId}`} variant='outline-secondary' size='sm'>
+                    Back to Project
+                </Button>
+            </div>
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId='bidAmount' className='my-3'>
                     <Form.Label>Bid Amount</Form.Label>

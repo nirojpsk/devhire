@@ -1,6 +1,6 @@
 import { Container, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetProjectByIdQuery, useUpdateProjectMutation } from '../../api/projectApiSlice';
 
@@ -81,7 +81,12 @@ function EditProjectPage() {
     }
     return (
         <Container className='py-2' style={{ maxWidth: '700px' }}>
-            <h2 className='mb-4'>Edit Project</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Edit Project</h2>
+                <Button as={Link} to='/my-projects' variant='outline-secondary' size='sm'>
+                    Back to My Projects
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className='text-center'>

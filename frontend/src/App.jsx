@@ -25,6 +25,9 @@ import EditDeveloperProfilePage from './pages/developer/EditDeveloperProfilePage
 import CreateClientProfilePage from './pages/client/CreateClientProfilePage';
 import ClientProfilePage from './pages/client/ClientProfilePage';
 import EditClientProfilePage from './pages/client/EditClientProfilePage';
+import ManageProjectsPage from './pages/admin/ManageProjectsPage';
+import ManageUsersPage from './pages/admin/ManageUsersPage';
+import AdminUserProfilePage from './pages/admin/AdminUserProfilePage';
 
 function App() {
   return (
@@ -63,6 +66,10 @@ function App() {
 
           <Route element={<RoleRoute allowedRoles={["admin"]} />}>
             <Route path='/admin/dashboard' element={<AdminDashboard />} />
+             <Route path='/admin/users' element={<ManageUsersPage />} />
+             <Route path='/admin/users/:userId/profile' element={<AdminUserProfilePage />} />
+              <Route path='/admin/projects' element={<ManageProjectsPage />} />
+        
           </Route>
         </Route>
 

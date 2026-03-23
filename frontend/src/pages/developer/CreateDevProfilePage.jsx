@@ -1,6 +1,6 @@
 import { Form, Container, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCreateDeveloperProfileMutation } from '../../api/developerApiSlice';
 
@@ -59,7 +59,12 @@ function CreateDevProfilePage() {
 
     return (
         <Container className='py-4' style={{ maxWidth: '750px' }}>
-            <h2>Create Developer Profile</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Create Developer Profile</h2>
+                <Button as={Link} to='/developer/dashboard' variant='outline-secondary' size='sm'>
+                    Back to Dashboard
+                </Button>
+            </div>
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId='bio' className='my-3'>
                     <Form.Label>Bio</Form.Label>

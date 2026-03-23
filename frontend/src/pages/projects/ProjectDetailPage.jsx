@@ -28,7 +28,12 @@ function ProjectDetailPage() {
 
     return (
         <Container className='py-4'>
-            <h2 className='mb-4'>Project Details</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Project Details</h2>
+                <Button as={Link} to='/projects' variant='outline-secondary' size='sm'>
+                    Back to Projects
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className='text-center'>

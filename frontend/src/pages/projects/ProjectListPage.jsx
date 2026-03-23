@@ -1,15 +1,28 @@
 import { Card, Col, Row, Container, Spinner, Alert, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useGetProjectsQuery } from '../../api/projectApiSlice';
+import { useSelector } from 'react-redux';
 
 
 function ProjectListPage() {
     const { data, isLoading, error } = useGetProjectsQuery();
+    const { userInfo } = useSelector((state) => state.auth);
     const projects = data?.projects ?? [];
+    const backLink = userInfo?.role === 'client'
+        ? '/client/dashboard'
+        : userInfo?.role === 'developer'
+            ? '/developer/dashboard'
+            : '/';
+    const backLabel = userInfo ? 'Back to Dashboard' : 'Back to Home';
 
     return (
         <Container className='py-4'>
-            <h2 className='mb-4'>Browse Projects</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Browse Projects</h2>
+                <Link to={backLink} className='btn btn-outline-secondary btn-sm'>
+                    {backLabel}
+                </Link>
+            </div>
             {isLoading ? (
                 <div className='text-center'>
                     <Spinner animation='border' />

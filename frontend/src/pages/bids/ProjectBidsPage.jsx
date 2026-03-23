@@ -1,5 +1,5 @@
 import { Container, Card, Row, Col, Alert, Spinner, Badge, Button } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetBidsForProjectQuery, useAcceptBidMutation, useRejectBidMutation } from '../../api/bidApiSlice';
 
@@ -42,7 +42,12 @@ function ProjectBidsPage() {
 
     return (
         <Container className='py-4'>
-            <h2 className='mb-4'>Project Bids</h2>
+            <div className='d-flex justify-content-between align-items-center mb-4'>
+                <h2 className='mb-0'>Project Bids</h2>
+                <Button as={Link} to={`/projects/${projectId}`} variant='outline-secondary' size='sm'>
+                    Back to Project
+                </Button>
+            </div>
 
             {isLoading ? (
                 <div className='text-center'>
