@@ -657,6 +657,22 @@ p {
   font-weight: 700;
 }
 
+.profile-stat__value .rating-stars {
+  width: 100%;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.profile-stat__value .rating-stars__icons {
+  flex-wrap: wrap;
+}
+
+.profile-stat__value .rating-stars__value {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 .btn {
   --bs-btn-border-radius: 16px;
   --bs-btn-font-weight: 700;
