@@ -33,6 +33,12 @@ const projectApiSlice = apiSlice.injectEndpoints({
             }),
             providesTags: ['Project'],
         }),
+        getSubmittedProjects: builder.query({
+            query: () => ({
+                url: `${PROJECT_URL}/submitted-projects`,
+            }),
+            providesTags: ['Project'],
+        }),
         updateProject: builder.mutation({
             query: ({ projectId, data }) => ({
                 url: `${PROJECT_URL}/${projectId}`,
@@ -48,8 +54,43 @@ const projectApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Project'],
         }),
+        submitProject: builder.mutation({
+            query: ({ projectId, data }) => ({
+                url: `${PROJECT_URL}/${projectId}/submit`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Project', 'Bid'],
+        }),
+        reviewSubmittedProject: builder.mutation({
+            query: ({ projectId, data }) => ({
+                url: `${PROJECT_URL}/${projectId}/review-submission`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Project', 'Bid'],
+        }),
+        reviewDeveloperForProject: builder.mutation({
+            query: ({ projectId, data }) => ({
+                url: `${PROJECT_URL}/${projectId}/review-developer`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Project', 'DeveloperProfile'],
+        }),
 
     }),
 });
 
-export const { useCreateProjectMutation, useGetMyProjectsQuery, useGetProjectByIdQuery, useGetProjectsQuery, useUpdateProjectMutation, useDeleteProjectMutation } = projectApiSlice;
+export const {
+    useCreateProjectMutation,
+    useGetMyProjectsQuery,
+    useGetSubmittedProjectsQuery,
+    useGetProjectByIdQuery,
+    useGetProjectsQuery,
+    useUpdateProjectMutation,
+    useDeleteProjectMutation,
+    useSubmitProjectMutation,
+    useReviewSubmittedProjectMutation,
+    useReviewDeveloperForProjectMutation,
+} = projectApiSlice;

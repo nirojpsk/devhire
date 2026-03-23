@@ -5,6 +5,7 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { Country, State, City } from 'country-state-city';
+import getErrorMessage from '../../utils/getErrorMessage';
 
 function RegisterPage() {
     const [name, setName] = useState('');
@@ -91,12 +92,7 @@ if (!passwordRegex.test(password)) {
             toast.success("Registration successful. Please login");
             navigate('/login');
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Registration failed"
-            );
+            toast.error(getErrorMessage(err, "Unable to register"));
         }
     };
 

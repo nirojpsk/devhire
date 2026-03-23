@@ -3,6 +3,24 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCreateProjectMutation } from '../../api/projectApiSlice';
+import getErrorMessage from '../../utils/getErrorMessage';
+
+const isFutureDate = (dateValue) => {
+    const selectedDate = new Date(dateValue);
+    if (Number.isNaN(selectedDate.getTime())) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    return selectedDate > today;
+};
+
+const getTomorrowDateString = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+};
 
 function CreateProjectPage() {
     const [title, setTitle] = useState('');
@@ -36,6 +54,11 @@ function CreateProjectPage() {
             return;
         }
 
+        if (!isFutureDate(deadline)) {
+            toast.error('Deadline must be a future date');
+            return;
+        }
+
         try {
             const res = await createProject({
                 title,
@@ -50,12 +73,7 @@ function CreateProjectPage() {
             toast.success(res?.message || 'Project created successfully');
             navigate('/client/dashboard');
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                'Error creating Project'
-            );
+            toast.error(getErrorMessage(err, 'Unable to create project'));
         }
     };
 
@@ -113,11 +131,12 @@ function CreateProjectPage() {
                     </Form.Text>
                 </Form.Group>
 
-                <Form.Group controlId='deadline' className='my-3'>
+                    <Form.Group controlId='deadline' className='my-3'>
                     <Form.Label>Deadline</Form.Label>
                     <Form.Control
                         type='date'
                         value={deadline}
+                        min={getTomorrowDateString()}
                         onChange={(e) => setDeadline(e.target.value)}
                     />
                 </Form.Group>

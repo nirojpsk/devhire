@@ -2,11 +2,13 @@ import { Form, Button, Container, Card } from "react-bootstrap";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useChangePasswordMutation } from "../../api/authApiSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 function ChangePasswordPage() {
     const { userInfo } = useSelector((state) => state.auth);
+    const navigate = useNavigate();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -44,7 +46,7 @@ function ChangePasswordPage() {
 
         try {
             const res = await changePassword({
-                currentPassword,
+                oldPassword: currentPassword,
                 newPassword,
             }).unwrap();
 
@@ -53,13 +55,9 @@ function ChangePasswordPage() {
             setCurrentPassword("");
             setNewPassword("");
             setConfirmNewPassword("");
+            navigate(backLink);
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Error changing password"
-            );
+            toast.error(getErrorMessage(err, "Unable to change password"));
         }
     };
 

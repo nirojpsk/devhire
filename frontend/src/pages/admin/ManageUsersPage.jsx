@@ -1,6 +1,7 @@
 import { Container, Table, Spinner, Alert, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import getErrorMessage from "../../utils/getErrorMessage";
 import {
     useGetAllUsersQuery,
     useDeleteUserMutation,
@@ -22,12 +23,7 @@ function ManageUsersPage() {
                 const res = await deleteUser(userId).unwrap();
                 toast.success(res?.message || "User deleted successfully");
             } catch (err) {
-                toast.error(
-                    err?.data?.message ||
-                    err?.data?.error ||
-                    err?.error ||
-                    "Error deleting user"
-                );
+                toast.error(getErrorMessage(err, "Unable to delete user"));
             }
         }
     };
@@ -37,12 +33,7 @@ function ManageUsersPage() {
             const res = await banUser(userId).unwrap();
             toast.success(res?.message || "User status updated successfully");
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Error banning user"
-            );
+            toast.error(getErrorMessage(err, "Unable to update user status"));
         }
     };
 

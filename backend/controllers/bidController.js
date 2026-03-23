@@ -1,6 +1,14 @@
 import Bid from "../models/Bid.js";
 import Project from "../models/Project.js";
+import Developer from "../models/DeveloperProfile.js";
 import mongoose from "mongoose";
+
+const getRemainingDaysToDeadline = (deadline) => {
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const diffMs = deadlineDate.getTime() - now.getTime();
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+};
 
 // 1. PLACE BID [DEVELOPER]
 const placeBid = async (req, res) => {
@@ -8,6 +16,9 @@ const placeBid = async (req, res) => {
         const developerId = req.user._id;
         const { projectId } = req.params;
         const { bidAmount, proposal, deliveryTime } = req.body;
+        const numericBidAmount = Number(bidAmount);
+        const numericDeliveryTime = Number(deliveryTime);
+        const trimmedProposal = proposal?.trim?.() || "";
 
         if (!mongoose.Types.ObjectId.isValid(projectId)) {
             return res.status(400).json({
@@ -18,6 +29,31 @@ const placeBid = async (req, res) => {
         if (!bidAmount || !proposal || !deliveryTime) {
             return res.status(400).json({
                 message: "Please fill all required fields",
+            });
+        }
+
+        if (Number.isNaN(numericBidAmount) || numericBidAmount <= 0) {
+            return res.status(400).json({
+                message: "Bid amount must be greater than 0",
+            });
+        }
+
+        if (Number.isNaN(numericDeliveryTime) || numericDeliveryTime <= 0) {
+            return res.status(400).json({
+                message: "Delivery time must be greater than 0",
+            });
+        }
+
+        if (trimmedProposal.length < 50) {
+            return res.status(400).json({
+                message: "Proposal must be at least 50 characters long",
+            });
+        }
+
+        const developerProfile = await Developer.findOne({ userId: developerId });
+        if (!developerProfile) {
+            return res.status(400).json({
+                message: "Please create your developer profile before placing a bid",
             });
         }
 
@@ -35,6 +71,19 @@ const placeBid = async (req, res) => {
             });
         }
 
+        const remainingDays = getRemainingDaysToDeadline(project.deadline);
+        if (numericDeliveryTime > remainingDays) {
+            return res.status(400).json({
+                message: `Delivery time must be within the project deadline (${remainingDays} day(s) left)`,
+            });
+        }
+
+        if (numericBidAmount < Number(project.budget.min)) {
+            return res.status(400).json({
+                message: `Bid amount cannot be less than the project minimum budget ($${project.budget.min})`,
+            });
+        }
+
         const existingBid = await Bid.findOne({ projectId, developerId });
 
         if (existingBid) {
@@ -46,9 +95,9 @@ const placeBid = async (req, res) => {
         const bid = await Bid.create({
             projectId,
             developerId,
-            bidAmount,
-            proposal,
-            deliveryTime,
+            bidAmount: numericBidAmount,
+            proposal: trimmedProposal,
+            deliveryTime: numericDeliveryTime,
         });
 
         res.status(201).json({
@@ -56,6 +105,13 @@ const placeBid = async (req, res) => {
             bid,
         });
     } catch (err) {
+        if (err.name === "ValidationError") {
+            const firstValidationMessage = Object.values(err.errors)?.[0]?.message;
+            return res.status(400).json({
+                message: firstValidationMessage || "Invalid bid data",
+            });
+        }
+
         res.status(500).json({
             message: "Error placing bid",
             error: err.message,
@@ -69,11 +125,25 @@ const getMyBids = async (req, res) => {
         const developerId = req.user._id;
 
         const bids = await Bid.find({ developerId })
-            .populate("projectId", "title status budget deadline");
+            .populate("projectId", "title status budget deadline submission selectedDeveloper");
+
+        const sanitizedBids = bids.map((bidDoc) => {
+            const bid = bidDoc.toObject();
+            const selectedDeveloperId = bid.projectId?.selectedDeveloper
+                ? String(bid.projectId.selectedDeveloper)
+                : null;
+            const isSubmittingDeveloper = selectedDeveloperId === String(developerId);
+
+            if (!isSubmittingDeveloper && bid.projectId) {
+                delete bid.projectId.submission;
+            }
+
+            return bid;
+        });
 
         res.status(200).json({
             message: "Developer bids fetched successfully",
-            bids,
+            bids: sanitizedBids,
         });
     } catch (err) {
         res.status(500).json({
@@ -95,7 +165,7 @@ const getSingleBid = async (req, res) => {
             });
         }
 
-        const bid = await Bid.findById(bidId).populate("projectId", "title");
+        const bid = await Bid.findById(bidId).populate("projectId", "title deadline");
 
         if (!bid) {
             return res.status(404).json({
@@ -203,9 +273,32 @@ const updateBid = async (req, res) => {
             });
         }
 
+        const project = await Project.findById(bid.projectId);
+        if (!project) {
+            return res.status(404).json({
+                message: "Project not found",
+            });
+        }
+
         if (bidAmount !== undefined) bid.bidAmount = bidAmount;
         if (proposal !== undefined) bid.proposal = proposal;
-        if (deliveryTime !== undefined) bid.deliveryTime = deliveryTime;
+        if (deliveryTime !== undefined) {
+            const numericDeliveryTime = Number(deliveryTime);
+            if (Number.isNaN(numericDeliveryTime) || numericDeliveryTime <= 0) {
+                return res.status(400).json({
+                    message: "Delivery time must be greater than 0",
+                });
+            }
+
+            const remainingDays = getRemainingDaysToDeadline(project.deadline);
+            if (numericDeliveryTime > remainingDays) {
+                return res.status(400).json({
+                    message: `Delivery time must be within the project deadline (${remainingDays} day(s) left)`,
+                });
+            }
+
+            bid.deliveryTime = numericDeliveryTime;
+        }
 
         bid.editCount += 1;
 
@@ -300,11 +393,59 @@ const acceptBid = async (req, res) => {
             });
         }
 
+        if (project.status !== "open") {
+            return res.status(400).json({
+                message: "Bid can only be accepted while the project is open",
+            });
+        }
+
+        if (bid.status !== "pending") {
+            return res.status(400).json({
+                message: "Only pending bids can be accepted",
+            });
+        }
+
+        const existingAcceptedBid = await Bid.findOne({
+            projectId: bid.projectId,
+            status: "accepted",
+            _id: { $ne: bid._id },
+        });
+
+        if (existingAcceptedBid) {
+            // Keep project state consistent for older records created before this rule.
+            if (
+                project.status !== "in-progress" ||
+                !project.selectedDeveloper ||
+                project.selectedDeveloper.toString() !== existingAcceptedBid.developerId.toString()
+            ) {
+                project.selectedDeveloper = existingAcceptedBid.developerId;
+                project.status = "in-progress";
+                await project.save();
+            }
+
+            return res.status(400).json({
+                message: "A bid has already been accepted for this project",
+            });
+        }
+
         bid.status = "accepted";
         await bid.save();
 
+        await Bid.updateMany(
+            {
+                projectId: bid.projectId,
+                _id: { $ne: bid._id },
+                status: "pending",
+            },
+            { $set: { status: "rejected" } }
+        );
+
+        project.selectedDeveloper = bid.developerId;
+        project.status = "in-progress";
+        await project.save();
+
         res.status(200).json({
-            message: "Bid accepted successfully",
+            message: "Bid accepted successfully and other pending bids were rejected",
             bid,
         });
     } catch (err) {
@@ -344,6 +485,12 @@ const rejectBid = async (req, res) => {
         if (project.clientId.toString() !== clientId.toString()) {
             return res.status(403).json({
                 message: "Not authorized",
+            });
+        }
+
+        if (bid.status !== "pending") {
+            return res.status(400).json({
+                message: "Only pending bids can be rejected",
             });
         }
 

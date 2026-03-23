@@ -1,6 +1,7 @@
 import { Container, Table, Spinner, Alert, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import getErrorMessage from "../../utils/getErrorMessage";
 import {
     useGetAllProjectsAdminQuery,
     useDeleteProjectAdminMutation,
@@ -19,12 +20,7 @@ function ManageProjectsPage() {
                 const res = await deleteProjectAdmin(projectId).unwrap();
                 toast.success(res?.message || "Project deleted successfully");
             } catch (err) {
-                toast.error(
-                    err?.data?.message ||
-                    err?.data?.error ||
-                    err?.error ||
-                    "Error deleting project"
-                );
+                toast.error(getErrorMessage(err, "Unable to delete project"));
             }
         }
     };

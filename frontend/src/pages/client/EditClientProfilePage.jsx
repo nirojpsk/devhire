@@ -6,6 +6,7 @@ import {
     useGetClientProfileQuery,
     useUpdateClientProfileMutation,
 } from "../../api/clientApiSlice";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 function EditClientProfilePage() {
     const { data, isLoading, error } = useGetClientProfileQuery();
@@ -40,12 +41,7 @@ function EditClientProfilePage() {
             toast.success(res?.message || "Client profile updated successfully");
             navigate("/client/profile");
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Error updating client profile"
-            );
+            toast.error(getErrorMessage(err, "Unable to update client profile"));
         }
     };
 

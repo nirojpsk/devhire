@@ -1,6 +1,7 @@
 import { Container, Spinner, Alert, Card, Badge, Button, ListGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useGetDeveloperProfileQuery } from "../../api/developerApiSlice";
+import StarRating from "../../components/common/StarRating";
 
 function DeveloperProfilePage() {
     const { data, isLoading, error } = useGetDeveloperProfileQuery();
@@ -34,7 +35,8 @@ function DeveloperProfilePage() {
                             <Card.Text>{profile.userId?.email}</Card.Text>
 
                             <Card.Text>
-                                <strong>Average Rating:</strong> {profile.averageRating}
+                                <strong>Average Rating:</strong>{" "}
+                                <StarRating rating={profile.averageRating} />
                             </Card.Text>
 
                             <Card.Text>

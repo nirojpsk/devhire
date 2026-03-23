@@ -6,6 +6,7 @@ import { useLogoutMutation } from "../../api/authApiSlice";
 import { clearCredentials } from "../../slices/authSlice";
 import apiSlice from '../../api/apiSlice';
 import { toast } from 'react-toastify';
+import getErrorMessage from '../../utils/getErrorMessage';
 
 
 function Header() {
@@ -24,12 +25,7 @@ function Header() {
 
 
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error
-                || err?.error
-                ||
-                'Error logging out');
+            toast.error(getErrorMessage(err, 'Unable to log out'));
         };
     };
 

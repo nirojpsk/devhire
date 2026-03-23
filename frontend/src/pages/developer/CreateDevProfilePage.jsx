@@ -1,8 +1,10 @@
-import { Form, Container, Button } from 'react-bootstrap';
+import { Form, Container, Button, Alert, Spinner } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCreateDeveloperProfileMutation } from '../../api/developerApiSlice';
+import getErrorMessage from '../../utils/getErrorMessage';
+import { useGetCurrentUserQuery } from '../../api/authApiSlice';
 
 function CreateDevProfilePage() {
     const [bio, setBio] = useState('');
@@ -16,6 +18,7 @@ function CreateDevProfilePage() {
 
     const navigate = useNavigate();
     const [createDeveloperProfile, { isLoading }] = useCreateDeveloperProfileMutation();
+    const { isLoading: loadingCurrentUser, error: currentUserError } = useGetCurrentUserQuery();
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -48,12 +51,7 @@ function CreateDevProfilePage() {
             toast.success(res?.message || "Developer profile created successfully");
             navigate('/developer/profile');
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                'Error creating Developer Profile'
-            );
+            toast.error(getErrorMessage(err, 'Unable to create developer profile'));
         }
     };
 
@@ -65,6 +63,13 @@ function CreateDevProfilePage() {
                     Back to Dashboard
                 </Button>
             </div>
+            {loadingCurrentUser ? (
+                <div className='text-center'>
+                    <Spinner animation='border' />
+                </div>
+            ) : currentUserError?.data?.message === "Your account has been banned" ? (
+                <Alert variant='danger'>Your account has been banned</Alert>
+            ) : (
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId='bio' className='my-3'>
                     <Form.Label>Bio</Form.Label>
@@ -115,6 +120,7 @@ function CreateDevProfilePage() {
                 </Button>
 
             </Form>
+            )}
         </Container>
     );
 };

@@ -43,4 +43,76 @@ const checkAuth = async (req, res, next) => {
     }
 };
 
+const checkAuthAllowBanned = async (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({
+            message: "You are not logged in!!!",
+        });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        if (!decoded?.userId) {
+            return res.status(401).json({
+                message: "Invalid token payload",
+            });
+        }
+        const user = await User.findById(decoded.userId).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found!!!",
+            });
+        }
+        req.user = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+        next();
+    }
+    catch (err) {
+        res.status(401).send({
+            message: "Invalid or expired Token!!!",
+        });
+    }
+};
+
+const optionalAuth = async (req, res, next) => {
+    const token = req.cookies?.token;
+    if (!token) {
+        return next();
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        if (!decoded?.userId) {
+            return next();
+        }
+
+        const user = await User.findById(decoded.userId).select("-password");
+        if (!user) {
+            return next();
+        }
+
+        if (user.isBanned) {
+            return res.status(403).json({
+                message: "Your account has been banned",
+            });
+        }
+
+        req.user = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+    } catch {
+        // Ignore invalid/expired token on optional auth paths.
+    }
+
+    next();
+};
+
 export default checkAuth;
+export { optionalAuth, checkAuthAllowBanned };

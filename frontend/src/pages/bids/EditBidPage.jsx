@@ -6,6 +6,7 @@ import {
     useGetBidByIdQuery,
     useUpdateBidMutation,
 } from '../../api/bidApiSlice';
+import getErrorMessage from '../../utils/getErrorMessage';
 
 function EditBidPage() {
     const { bidId } = useParams();
@@ -16,6 +17,10 @@ function EditBidPage() {
 
     const bid = data?.bid;
     const backTo = bid?.projectId?._id ? `/projects/${bid.projectId._id}` : '/my-bids';
+    const isEditLimitReached = bid?.editCount >= 2;
+    const remainingDays = bid?.projectId?.deadline
+        ? Math.ceil((new Date(bid.projectId.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
     const [bidAmount, setBidAmount] = useState('');
     const [proposal, setProposal] = useState('');
@@ -52,6 +57,11 @@ function EditBidPage() {
             return;
         }
 
+        if (remainingDays !== null && Number(deliveryTime) > remainingDays) {
+            toast.error(`Delivery time must be within the project deadline (${remainingDays} day(s) left)`);
+            return;
+        }
+
         try {
             const res = await updateBid({
                 bidId,
@@ -70,12 +80,7 @@ function EditBidPage() {
                 navigate('/developer/dashboard');
             }
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                'Error updating bid'
-            );
+            toast.error(getErrorMessage(err, 'Unable to update bid'));
         }
     };
 
@@ -113,6 +118,12 @@ function EditBidPage() {
                             <strong>Edit Count:</strong> {bid.editCount}
                         </Card.Text>
 
+                        {isEditLimitReached && (
+                            <Alert variant='info' className='py-2'>
+                                You have reached the maximum number of allowed bid edits for this project.
+                            </Alert>
+                        )}
+
                         <Form onSubmit={submitHandler}>
                             <Form.Group controlId='bidAmount' className='my-3'>
                                 <Form.Label>Bid Amount</Form.Label>
@@ -146,13 +157,18 @@ function EditBidPage() {
                                     onChange={(e) => setDeliveryTime(e.target.value)}
                                     placeholder='Enter delivery time in days'
                                 />
+                                {remainingDays !== null && (
+                                    <Form.Text muted>
+                                        You must deliver within {remainingDays} day(s) based on the project deadline.
+                                    </Form.Text>
+                                )}
                             </Form.Group>
 
                             <div className='d-flex gap-2 flex-wrap'>
                                 <Button
                                     type='submit'
                                     className='btn btn-sm'
-                                    disabled={loadingUpdate}
+                                    disabled={loadingUpdate || isEditLimitReached}
                                 >
                                     {loadingUpdate ? 'Updating...' : 'Update Bid'}
                                 </Button>

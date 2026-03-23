@@ -1,8 +1,11 @@
 import { usePlaceBidMutation } from "../../api/bidApiSlice";
-import { Form, Button, Container } from 'react-bootstrap';
+import { Form, Button, Container, Alert, Spinner } from 'react-bootstrap';
 import { useState } from "react";
 import { toast } from 'react-toastify';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useGetProjectByIdQuery } from "../../api/projectApiSlice";
+import getErrorMessage from "../../utils/getErrorMessage";
+import { useGetDeveloperProfileQuery } from "../../api/developerApiSlice";
 
 
 function PlaceBidPage() {
@@ -14,6 +17,13 @@ function PlaceBidPage() {
     const [deliveryTime, setDeliveryTime] = useState('');
 
     const [placeBid, { isLoading }] = usePlaceBidMutation();
+    const { data: projectData } = useGetProjectByIdQuery(projectId);
+    const { data: developerProfileData, isLoading: loadingDeveloperProfile } = useGetDeveloperProfileQuery();
+    const project = projectData?.project;
+    const hasDeveloperProfile = !!developerProfileData?.profile;
+    const remainingDays = project?.deadline
+        ? Math.ceil((new Date(project.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -28,8 +38,23 @@ function PlaceBidPage() {
             return;
         }
 
+        if (proposal.trim().length < 50) {
+            toast.error('Proposal must be at least 50 characters');
+            return;
+        }
+
+        if (project?.budget?.min !== undefined && Number(bidAmount) < Number(project.budget.min)) {
+            toast.error(`Bid amount cannot be less than the project minimum budget ($${project.budget.min})`);
+            return;
+        }
+
         if (Number(deliveryTime) <= 0) {
             toast.error('Delivery time must be greater than 0');
+            return;
+        }
+
+        if (remainingDays !== null && Number(deliveryTime) > remainingDays) {
+            toast.error(`Delivery time must be within the project deadline (${remainingDays} day(s) left)`);
             return;
         }
 
@@ -46,12 +71,7 @@ function PlaceBidPage() {
             toast.success(res?.message || 'Bid placed successfully');
             navigate(`/projects/${projectId}`);
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                'Error placing bid'
-            );
+            toast.error(getErrorMessage(err, 'Unable to place bid'));
         }
     };
 
@@ -63,6 +83,16 @@ function PlaceBidPage() {
                     Back to Project
                 </Button>
             </div>
+            {loadingDeveloperProfile ? (
+                <div className='text-center'>
+                    <Spinner animation='border' />
+                </div>
+            ) : !hasDeveloperProfile ? (
+                <Alert variant='warning'>
+                    Please create your developer profile before placing a bid.{' '}
+                    <Link to='/developer/profile/create'>Create Profile</Link>
+                </Alert>
+            ) : (
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId='bidAmount' className='my-3'>
                     <Form.Label>Bid Amount</Form.Label>
@@ -72,6 +102,11 @@ function PlaceBidPage() {
                         onChange={(e) => setBidAmount(e.target.value)}
                         placeholder='Enter your bid amount'
                     />
+                    {project?.budget && (
+                        <Form.Text muted>
+                            Project budget range: ${project.budget.min} - ${project.budget.max}
+                        </Form.Text>
+                    )}
                 </Form.Group>
 
                 <Form.Group controlId='proposal' className='my-3'>
@@ -83,6 +118,9 @@ function PlaceBidPage() {
                         onChange={(e) => setProposal(e.target.value)}
                         placeholder='Explain why you are the right developer for this project'
                     />
+                    <Form.Text muted>
+                        Proposal must be at least 50 characters.
+                    </Form.Text>
                 </Form.Group>
 
                 <Form.Group controlId='deliveryTime' className='my-3'>
@@ -93,12 +131,18 @@ function PlaceBidPage() {
                         onChange={(e) => setDeliveryTime(e.target.value)}
                         placeholder='Enter delivery time in days'
                     />
+                    {remainingDays !== null && (
+                        <Form.Text muted>
+                            You must deliver within {remainingDays} day(s) based on the project deadline.
+                        </Form.Text>
+                    )}
                 </Form.Group>
 
                 <Button type='submit' className='btn btn-sm' disabled={isLoading}>
                     {isLoading ? 'Submitting...' : 'Place Bid'}
                 </Button>
             </Form>
+            )}
         </Container>
     );
 };

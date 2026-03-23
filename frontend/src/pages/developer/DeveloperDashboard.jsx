@@ -50,6 +50,18 @@ function DeveloperDashboard() {
                     </Card>
                 </Col>
 
+                <Col md={6}>
+                    <Card className="h-100 shadow-sm">
+                        <Card.Body>
+                            <Card.Title>Accepted Projects</Card.Title>
+                            <Card.Text>View projects where your bids have been accepted.</Card.Text>
+                            <Button as={Link} to="/developer/accepted-projects" variant="success">
+                                View Accepted Projects
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
                 {!profile && (
                     <Col md={6}>
                         <Card className="h-100 shadow-sm">

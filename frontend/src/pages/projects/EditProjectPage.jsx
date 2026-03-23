@@ -3,6 +3,24 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetProjectByIdQuery, useUpdateProjectMutation } from '../../api/projectApiSlice';
+import getErrorMessage from '../../utils/getErrorMessage';
+
+const isFutureDate = (dateValue) => {
+    const selectedDate = new Date(dateValue);
+    if (Number.isNaN(selectedDate.getTime())) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    return selectedDate > today;
+};
+
+const getTomorrowDateString = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+};
 
 function EditProjectPage() {
     const { projectId } = useParams();
@@ -53,6 +71,11 @@ function EditProjectPage() {
             return;
         }
 
+        if (!isFutureDate(deadline)) {
+            toast.error('Deadline must be a future date');
+            return;
+        }
+
         try {
             const res = await updateProject({
                 projectId,
@@ -71,12 +94,7 @@ function EditProjectPage() {
             toast.success(res?.message || 'Project updated successfully');
             navigate('/my-projects');
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                'Error updating project'
-            );
+            toast.error(getErrorMessage(err, 'Unable to update project'));
         }
     }
     return (
@@ -157,6 +175,7 @@ function EditProjectPage() {
                         <Form.Control
                             type='date'
                             value={deadline}
+                            min={getTomorrowDateString()}
                             onChange={(e) => setDeadline(e.target.value)}
                         />
                     </Form.Group>

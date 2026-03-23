@@ -56,6 +56,62 @@ const projectSchema = new mongoose.Schema({
         ref: "User"
 
     },
+    submission: {
+        link: {
+            type: String,
+            trim: true,
+        },
+        note: {
+            type: String,
+            trim: true,
+            maxlength: 1000,
+        },
+        submittedAt: {
+            type: Date,
+        },
+        submittedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+        clientDecision: {
+            status: {
+                type: String,
+                enum: ["pending", "accepted", "rejected"],
+                default: "pending",
+            },
+            note: {
+                type: String,
+                trim: true,
+                maxlength: 1000,
+            },
+            decidedAt: {
+                type: Date,
+            },
+            decidedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        },
+        clientReview: {
+            rating: {
+                type: Number,
+                min: 1,
+                max: 5,
+            },
+            comment: {
+                type: String,
+                trim: true,
+                maxlength: 500,
+            },
+            reviewedAt: {
+                type: Date,
+            },
+            reviewedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        },
+    },
 }, { timestamps: true });
 
 const Project = mongoose.model("Project", projectSchema);

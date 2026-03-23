@@ -6,6 +6,7 @@ import {
     useGetDeveloperProfileQuery,
     useUpdateDeveloperProfileMutation,
 } from "../../api/developerApiSlice";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 function EditDeveloperProfilePage() {
     const { data, isLoading, error } = useGetDeveloperProfileQuery();
@@ -62,12 +63,7 @@ function EditDeveloperProfilePage() {
             toast.success(res?.message || "Developer profile updated successfully");
             navigate("/developer/profile");
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Error updating developer profile"
-            );
+            toast.error(getErrorMessage(err, "Unable to update developer profile"));
         }
     };
 

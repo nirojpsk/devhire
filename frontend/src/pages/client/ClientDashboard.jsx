@@ -62,6 +62,18 @@ function ClientDashboard() {
                     </Card>
                 </Col>
 
+                <Col md={6}>
+                    <Card className="h-100 shadow-sm">
+                        <Card.Body>
+                            <Card.Title>Submitted Projects</Card.Title>
+                            <Card.Text>Review completed work submitted by developers.</Card.Text>
+                            <Button as={Link} to="/client/submitted-projects" variant="success">
+                                View Submitted Projects
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
                 {!profile && (
                     <Col md={6}>
                         <Card className="h-100 shadow-sm">

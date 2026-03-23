@@ -1,6 +1,7 @@
 import { Container, Spinner, Alert, Card, Badge, Button } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import { useGetUserProfileAdminQuery } from "../../api/adminApiSlice";
+import StarRating from "../../components/common/StarRating";
 
 function AdminUserProfilePage() {
     const { userId } = useParams();
@@ -53,6 +54,11 @@ function AdminUserProfilePage() {
                                 <Card.Text><strong>Skills:</strong> {profile.skills?.join(", ") || "Not added"}</Card.Text>
                                 <Card.Text><strong>Experience Years:</strong> {profile.experienceYears}</Card.Text>
                                 <Card.Text><strong>Availability:</strong> {profile.availability}</Card.Text>
+                                <Card.Text>
+                                    <strong>Average Rating:</strong>{" "}
+                                    <StarRating rating={profile.averageRating} />
+                                </Card.Text>
+                                <Card.Text><strong>Total Reviews:</strong> {profile.totalReviews || 0}</Card.Text>
                                 <Card.Text><strong>Rate:</strong> {profile.rate}</Card.Text>
                                 <Card.Text>
                                     <strong>Portfolio:</strong>{" "}

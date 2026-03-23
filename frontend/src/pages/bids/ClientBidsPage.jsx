@@ -44,6 +44,18 @@ function ClientBidsPage() {
                                     <Card.Text>
                                         <strong>Email:</strong> {bid.developerId?.email || 'N/A'}
                                     </Card.Text>
+                                    {bid.developerId?._id && (
+                                        <div className='mb-2'>
+                                            <Button
+                                                as={Link}
+                                                to={`/developers/${bid.developerId._id}/profile`}
+                                                variant='outline-primary'
+                                                size='sm'
+                                            >
+                                                View Developer Profile
+                                            </Button>
+                                        </div>
+                                    )}
                                     <Card.Text>
                                         <strong>Bid Amount:</strong> ${bid.bidAmount}
                                     </Card.Text>

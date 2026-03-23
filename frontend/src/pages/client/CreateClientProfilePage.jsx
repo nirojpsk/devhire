@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCreateClientProfileMutation } from "../../api/clientApiSlice";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 function CreateClientProfilePage() {
     const [companyName, setCompanyName] = useState("");
@@ -30,12 +31,7 @@ function CreateClientProfilePage() {
             toast.success(res?.message || "Client profile created successfully");
             navigate("/client/profile");
         } catch (err) {
-            toast.error(
-                err?.data?.message ||
-                err?.data?.error ||
-                err?.error ||
-                "Error creating client profile"
-            );
+            toast.error(getErrorMessage(err, "Unable to create client profile"));
         }
     };
 

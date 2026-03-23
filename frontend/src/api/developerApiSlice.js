@@ -20,6 +20,22 @@ const developerApiSlice = apiSlice.injectEndpoints({
             providesTags: ['DeveloperProfile'],
         }),
 
+        getDeveloperProfileByUserId: builder.query({
+            query: (userId) => ({
+                url: `${DEVELOPER_URL}/user/${userId}/profile`,
+            }),
+            providesTags: ['DeveloperProfile'],
+        }),
+
+        addReviewByUserId: builder.mutation({
+            query: ({ userId, data }) => ({
+                url: `${DEVELOPER_URL}/user/${userId}/review`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['DeveloperProfile'],
+        }),
+
         updateDeveloperProfile: builder.mutation({
             query: (data) => ({
                 url: `${DEVELOPER_URL}/profile`,
@@ -31,4 +47,10 @@ const developerApiSlice = apiSlice.injectEndpoints({
     }),
 });
 
-export const {useCreateDeveloperProfileMutation, useGetDeveloperProfileQuery, useUpdateDeveloperProfileMutation} = developerApiSlice;
+export const {
+    useCreateDeveloperProfileMutation,
+    useGetDeveloperProfileQuery,
+    useGetDeveloperProfileByUserIdQuery,
+    useAddReviewByUserIdMutation,
+    useUpdateDeveloperProfileMutation,
+} = developerApiSlice;

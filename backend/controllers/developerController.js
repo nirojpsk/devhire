@@ -158,4 +158,102 @@ const createDeveloperProfile = async (req, res) => {
     }
 };
 
-export { createDeveloperProfile, getDeveloperProfile, updateDeveloperProfile, addReview };
+// 3b. ADD REVIEW TO DEVELOPER BY USER ID [CLIENT]
+const addReviewByUserId = async (req, res) => {
+    try {
+        const clientId = req.user._id;
+        const { userId } = req.params;
+        const { rating, comment } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid developer user ID",
+            });
+        }
+
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({
+                message: "rating must be between 1 and 5",
+            });
+        }
+
+        const developer = await Developer.findOne({ userId });
+        if (!developer) {
+            return res.status(404).json({
+                message: "Developer not found",
+            });
+        }
+
+        const alreadyReviewed = developer.reviews.find(
+            (r) => r.userId.toString() === clientId.toString()
+        );
+
+        if (alreadyReviewed) {
+            return res.status(400).json({
+                message: "You have already reviewed this developer",
+            });
+        }
+
+        developer.reviews.push({
+            userId: clientId,
+            rating,
+            comment,
+        });
+
+        await developer.save();
+
+        res.status(201).json({
+            message: "Review added successfully",
+            reviews: developer.reviews,
+            averageRating: developer.averageRating,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Error while adding the review",
+            error: err.message,
+        });
+    }
+};
+
+// 5. GET DEVELOPER PROFILE BY USER ID [CLIENT/ADMIN]
+const getDeveloperProfileByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid user ID",
+            });
+        }
+
+        const developer = await Developer.findOne({ userId }).populate(
+            "userId",
+            "name email profilePicture"
+        );
+
+        if (!developer) {
+            return res.status(404).json({
+                message: "Developer profile not found",
+            });
+        }
+
+        res.status(200).json({
+            message: "Developer profile fetched successfully",
+            profile: developer,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Error while fetching developer profile",
+            error: err.message,
+        });
+    }
+};
+
+export {
+    createDeveloperProfile,
+    getDeveloperProfile,
+    updateDeveloperProfile,
+    addReview,
+    addReviewByUserId,
+    getDeveloperProfileByUserId,
+};

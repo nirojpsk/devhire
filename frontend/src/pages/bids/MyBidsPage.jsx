@@ -5,6 +5,7 @@ import {
     useGetMyBidsQuery,
     useDeleteBidMutation,
 } from '../../api/bidApiSlice';
+import getErrorMessage from '../../utils/getErrorMessage';
 
 function MyBidsPage() {
     const { data, isLoading, error } = useGetMyBidsQuery();
@@ -18,12 +19,7 @@ function MyBidsPage() {
                 const res = await deleteBid(bidId).unwrap();
                 toast.success(res?.message || 'Bid deleted successfully');
             } catch (err) {
-                toast.error(
-                    err?.data?.message ||
-                    err?.data?.error ||
-                    err?.error ||
-                    'Error deleting bid'
-                );
+                toast.error(getErrorMessage(err, 'Unable to delete bid'));
             }
         }
     };
@@ -92,15 +88,16 @@ function MyBidsPage() {
                                             View Project
                                         </Button>
 
-                                        <Button
-                                            as={Link}
-                                            to={`/bids/${bid._id}/edit`}
-                                            variant='warning'
-                                            size='sm'
-                                            disabled={bid.status !== 'pending' || bid.editCount >= 2}
-                                        >
-                                            Edit Bid
-                                        </Button>
+                                        {bid.status === 'pending' && bid.editCount < 2 && (
+                                            <Button
+                                                as={Link}
+                                                to={`/bids/${bid._id}/edit`}
+                                                variant='warning'
+                                                size='sm'
+                                            >
+                                                Edit Bid
+                                            </Button>
+                                        )}
 
                                         <Button
                                             variant='danger'
@@ -111,6 +108,12 @@ function MyBidsPage() {
                                             {loadingDelete ? 'Deleting...' : 'Delete'}
                                         </Button>
                                     </div>
+
+                                    {bid.status === 'pending' && bid.editCount >= 2 && (
+                                        <Alert variant='info' className='mt-3 mb-0 py-2'>
+                                            You have reached the maximum number of allowed bid edits for this project.
+                                        </Alert>
+                                    )}
                                 </Card.Body>
                             </Card>
                         </Col>

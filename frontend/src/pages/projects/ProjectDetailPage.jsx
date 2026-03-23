@@ -11,11 +11,16 @@ import {
 import { useParams, Link } from 'react-router-dom';
 import { useGetProjectByIdQuery } from '../../api/projectApiSlice';
 import { useSelector } from 'react-redux';
+import { useGetMyBidsQuery } from '../../api/bidApiSlice';
+import { useGetDeveloperProfileQuery } from '../../api/developerApiSlice';
 
 function ProjectDetailPage() {
     const { projectId } = useParams();
     const { userInfo } = useSelector((state) => state.auth);
     const { data, isLoading, error } = useGetProjectByIdQuery(projectId);
+    const isDeveloper = userInfo?.role === 'developer';
+    const { data: myBidsData } = useGetMyBidsQuery(undefined, { skip: !isDeveloper });
+    const { data: developerProfileData } = useGetDeveloperProfileQuery(undefined, { skip: !isDeveloper });
 
     const project = data?.project;
 
@@ -23,8 +28,13 @@ function ProjectDetailPage() {
         userInfo?.role === 'client' &&
         userInfo?.id === project?.clientId?._id;
 
-    const isDeveloper = userInfo?.role === 'developer';
     const isProjectOpen = project?.status === 'open';
+    const statusLabel = project?.status === 'in-progress' ? 'in progress' : project?.status;
+    const hasDeveloperProfile = !!developerProfileData?.profile;
+    const hasAlreadyPlacedBid = myBidsData?.bids?.some((bid) => {
+        const bidProjectId = typeof bid?.projectId === 'object' ? bid.projectId?._id : bid?.projectId;
+        return String(bidProjectId) === String(project?._id);
+    });
 
     return (
         <Container className='py-4'>
@@ -66,7 +76,7 @@ function ProjectDetailPage() {
                             <Col md={6}>
                                 <Card.Text>
                                     <strong>Status:</strong>{' '}
-                                    <Badge bg='secondary'>{project.status}</Badge>
+                                    <Badge bg='secondary'>{statusLabel}</Badge>
                                 </Card.Text>
                             </Col>
                         </Row>
@@ -105,9 +115,56 @@ function ProjectDetailPage() {
                             <strong>Selected Developer:</strong>{' '}
                             {project.selectedDeveloper?.name || 'Not selected yet'}
                         </Card.Text>
+                        {project.selectedDeveloper?._id && (
+                            <div className='mb-3'>
+                                <Button
+                                    as={Link}
+                                    to={`/developers/${project.selectedDeveloper._id}/profile`}
+                                    variant='outline-primary'
+                                    size='sm'
+                                >
+                                    View Selected Developer Profile
+                                </Button>
+                            </div>
+                        )}
+                        {project.submission?.submittedAt && (
+                            <Alert variant='success' className='py-2'>
+                                <strong>Project Submitted:</strong>{' '}
+                                {new Date(project.submission.submittedAt).toLocaleDateString()}
+                                {project.submission?.link && (
+                                    <>
+                                        {' '}|{' '}
+                                        <a href={project.submission.link} target='_blank' rel='noreferrer'>
+                                            View Submission Link
+                                        </a>
+                                    </>
+                                )}
+                                {project.submission?.clientDecision?.status && (
+                                    <>
+                                        <br />
+                                        <strong>Client Decision:</strong>{' '}
+                                        {project.submission.clientDecision.status}
+                                        {project.submission.clientDecision.note && (
+                                            <>
+                                                <br />
+                                                <strong>Client Note:</strong>{' '}
+                                                {project.submission.clientDecision.note}
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </Alert>
+                        )}
 
                         <div className='mt-3 d-flex gap-2 flex-wrap'>
-                            {isDeveloper && isProjectOpen && (
+                            {isDeveloper && !hasDeveloperProfile && (
+                                <Alert variant='warning' className='mb-0 py-2'>
+                                    Please create your developer profile before placing a bid.{' '}
+                                    <Link to='/developer/profile/create'>Create Profile</Link>
+                                </Alert>
+                            )}
+
+                            {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid && (
                                 <Button
                                     as={Link}
                                     to={`/projects/${project._id}/bid`}
@@ -116,6 +173,12 @@ function ProjectDetailPage() {
                                 >
                                     Place Bid
                                 </Button>
+                            )}
+
+                            {isDeveloper && isProjectOpen && hasDeveloperProfile && hasAlreadyPlacedBid && (
+                                <Alert variant='info' className='mb-0 py-2'>
+                                    You have already placed the bid for this project
+                                </Alert>
                             )}
 
                             {isClientOwner && isProjectOpen && (

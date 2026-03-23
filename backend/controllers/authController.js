@@ -195,8 +195,9 @@ const getCurrentUser = async (req, res) => {
 const changePassword = async (req, res) => {
     try {
         const id = req.user._id;
-        const { oldPassword, newPassword } = req.body;
-        if (!oldPassword || !newPassword) {
+        const { oldPassword, currentPassword, newPassword } = req.body;
+        const existingPassword = oldPassword || currentPassword;
+        if (!existingPassword || !newPassword) {
             return res.status(400).json({
                 message: "Please fill all the required fields",
             });
@@ -213,7 +214,7 @@ const changePassword = async (req, res) => {
             });
         }
 
-        const isPasswordValid = await user.comparePassword(oldPassword);
+        const isPasswordValid = await user.comparePassword(existingPassword);
         if (!isPasswordValid) {
             return res.status(400).json({
                 message: "Old password is incorrect",

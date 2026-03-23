@@ -6,6 +6,7 @@ import { setCredentials } from "../../slices/authSlice";
 import apiSlice from "../../api/apiSlice";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 function LoginPage() {
     const { userInfo } = useSelector(state => state.auth);
@@ -55,7 +56,11 @@ function LoginPage() {
                 navigate("/");
             }
         } catch (err) {
-            toast.error(err?.data?.error || err?.error || "Login Failed");
+            const apiMessage = getErrorMessage(err, "Login failed");
+            const normalizedMessage = apiMessage?.toLowerCase().includes("valid credentials")
+                ? "Incorrect email or password"
+                : apiMessage;
+            toast.error(normalizedMessage || "Login failed");
         }
     }
     return (
