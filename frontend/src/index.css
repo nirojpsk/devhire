@@ -379,12 +379,12 @@ p {
 .stats-card {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(217, 227, 240, 0.86);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  border-radius: 24px;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
 }
 
 .surface-card {
-  padding: 24px;
+  padding: 20px;
 }
 
 .surface-card--soft {
@@ -466,12 +466,12 @@ p {
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 14px;
 }
 
 .stats-card,
 .dashboard-card {
-  padding: 24px;
+  padding: 18px 20px;
 }
 
 .stats-card__label,
@@ -485,8 +485,8 @@ p {
 
 .stats-card__value,
 .metric-value {
-  margin-top: 14px;
-  font-size: clamp(1.6rem, 2vw, 2.3rem);
+  margin-top: 10px;
+  font-size: clamp(1.45rem, 1.8vw, 2rem);
   line-height: 1;
   color: var(--text-strong);
   font-family: var(--font-display);
@@ -960,11 +960,11 @@ textarea.form-control {
 }
 
 .feature-card {
-  padding: 24px;
-  border-radius: 26px;
+  padding: 20px;
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(217, 227, 240, 0.86);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
 }
 
 .feature-card__icon {
@@ -990,7 +990,7 @@ textarea.form-control {
 }
 
 .showcase-card {
-  padding: 24px;
+  padding: 20px;
 }
 
 .showcase-card__meta {
@@ -1221,10 +1221,10 @@ textarea.form-control {
 .dashboard-shell {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  gap: 28px;
+  gap: 22px;
   width: min(1440px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 36px 0 48px;
+  padding: 30px 0 40px;
 }
 
 .dashboard-sidebar {
@@ -1367,7 +1367,7 @@ textarea.form-control {
 
 .dashboard-screen {
   display: grid;
-  gap: 28px;
+  gap: 22px;
 }
 
 .dashboard-hero {
@@ -1399,7 +1399,7 @@ textarea.form-control {
 
 .dashboard-metrics {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .dashboard-metrics--developer {
@@ -1409,19 +1409,19 @@ textarea.form-control {
 .dashboard-panel {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(217, 227, 240, 0.86);
-  border-radius: 26px;
-  box-shadow: 0 22px 42px rgba(15, 23, 42, 0.08);
-  padding: 24px 28px;
+  border-radius: 22px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+  padding: 18px 22px;
 }
 
 .dashboard-stat {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   align-content: start;
 }
 
 .dashboard-stat--wide {
-  min-height: 188px;
+  min-height: 148px;
 }
 
 .dashboard-stat--accent {
@@ -1436,14 +1436,14 @@ textarea.form-control {
 
 .dashboard-stat__eyebrow {
   color: var(--text-soft);
-  font-size: 0.84rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .dashboard-stat__value {
-  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-size: clamp(2rem, 3vw, 3rem);
   line-height: 0.95;
   font-weight: 800;
   letter-spacing: -0.05em;
@@ -1461,14 +1461,14 @@ textarea.form-control {
 
 .dashboard-progress-row {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .dashboard-progress-row__label {
   display: inline-block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--text-soft);
-  font-size: 0.92rem;
+  font-size: 0.84rem;
 }
 
 .dashboard-progress {
@@ -1493,13 +1493,13 @@ textarea.form-control {
 .dashboard-grid-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) minmax(280px, 0.85fr);
-  gap: 22px;
+  gap: 18px;
   align-items: start;
 }
 
 .dashboard-side-column {
   display: grid;
-  gap: 22px;
+  gap: 18px;
 }
 
 .dashboard-panel__header {
@@ -1507,12 +1507,12 @@ textarea.form-control {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .dashboard-panel__header h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.02rem;
 }
 
 .dashboard-panel__header p,
@@ -1527,14 +1527,14 @@ textarea.form-control {
 
 .dashboard-activity-list {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .dashboard-activity-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
-  padding: 18px 0;
+  gap: 14px;
+  padding: 14px 0;
   border-top: 1px solid rgba(225, 231, 241, 0.9);
 }
 
@@ -1564,9 +1564,9 @@ textarea.form-control {
 .dashboard-activity-item__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 10px 14px;
   color: var(--text-soft);
-  font-size: 0.94rem;
+  font-size: 0.88rem;
 }
 
 .dashboard-activity-item__meta span {
@@ -1662,7 +1662,7 @@ textarea.form-control {
 .market-layout {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
-  gap: 24px;
+  gap: 18px;
 }
 
 .market-hero {
@@ -1730,9 +1730,9 @@ textarea.form-control {
 .project-list-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 18px;
-  padding: 26px;
-  border-radius: 28px;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 22px;
 }
 
 .project-list-card__main {
@@ -1748,7 +1748,7 @@ textarea.form-control {
 }
 
 .project-list-card__budget {
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   line-height: 1.1;
   color: var(--text-strong);
   font-family: var(--font-display);
@@ -1865,17 +1865,17 @@ textarea.form-control {
 }
 
 .detail-card {
-  padding: 24px;
+  padding: 20px;
 }
 
 .detail-card__section {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .detail-card__section + .detail-card__section {
-  margin-top: 26px;
-  padding-top: 26px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid rgba(217, 227, 240, 0.86);
 }
 
@@ -1953,12 +1953,12 @@ textarea.form-control {
 }
 
 .project-editor-card {
-  padding: 30px;
+  padding: 22px;
 }
 
 .project-note-card {
-  padding: 24px;
-  border-radius: 28px;
+  padding: 18px;
+  border-radius: 22px;
 }
 
 .project-step-list {
@@ -2082,9 +2082,9 @@ textarea.form-control {
 }
 
 .bid-card {
-  padding: 24px;
+  padding: 20px;
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .bid-card__top,
