@@ -11,11 +11,14 @@ import {
     FaReceipt,
     FaShieldAlt,
     FaUser,
+    FaUserPlus,
     FaUsers,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useLogoutMutation } from "../../api/authApiSlice";
 import apiSlice from "../../api/apiSlice";
+import { useGetClientProfileQuery } from "../../api/clientApiSlice";
+import { useGetDeveloperProfileQuery } from "../../api/developerApiSlice";
 import { clearCredentials } from "../../slices/authSlice";
 import getErrorMessage from "../../utils/getErrorMessage";
 import Button from "../ui/Button";
@@ -27,7 +30,7 @@ const NAVIGATION = {
         { to: "/my-projects", label: "My Projects", icon: <FaProjectDiagram /> },
         { to: "/client/bids", label: "All Bids", icon: <FaReceipt /> },
         { to: "/client/submitted-projects", label: "Submissions", icon: <FaFolderOpen /> },
-        { to: "/client/profile", label: "Profile", icon: <FaUser /> },
+        { key: "profile", to: "/client/profile", label: "Profile", icon: <FaUser /> },
         { to: "/change-password", label: "Security", icon: <FaLock /> },
     ],
     developer: [
@@ -35,7 +38,7 @@ const NAVIGATION = {
         { to: "/projects", label: "Discover Projects", icon: <FaBriefcase /> },
         { to: "/my-bids", label: "My Bids", icon: <FaReceipt /> },
         { to: "/developer/accepted-projects", label: "Accepted Work", icon: <FaProjectDiagram /> },
-        { to: "/developer/profile", label: "Profile", icon: <FaUser /> },
+        { key: "profile", to: "/developer/profile", label: "Profile", icon: <FaUser /> },
         { to: "/change-password", label: "Security", icon: <FaLock /> },
     ],
     admin: [
@@ -61,11 +64,34 @@ const ROLE_SUBTITLES = {
 function Sidebar() {
     const { userInfo } = useSelector((state) => state.auth);
     const [logout] = useLogoutMutation();
+    const { error: clientProfileError } = useGetClientProfileQuery(undefined, {
+        skip: userInfo?.role !== "client",
+    });
+    const { error: developerProfileError } = useGetDeveloperProfileQuery(undefined, {
+        skip: userInfo?.role !== "developer",
+    });
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const role = userInfo?.role || "developer";
-    const items = NAVIGATION[role] || [];
+    const isMissingProfile = role === "client"
+        ? clientProfileError?.status === 404
+        : role === "developer"
+            ? developerProfileError?.status === 404
+            : false;
+
+    const items = (NAVIGATION[role] || []).map((item) => {
+        if (item.key !== "profile" || !isMissingProfile) {
+            return item;
+        }
+
+        return {
+            ...item,
+            to: role === "client" ? "/client/profile/create" : "/developer/profile/create",
+            label: "Create Profile",
+            icon: <FaUserPlus />,
+        };
+    });
 
     const logoutHandler = async () => {
         try {

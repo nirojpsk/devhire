@@ -298,6 +298,13 @@ p {
   color: var(--primary);
 }
 
+.header-chip-button {
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
 .site-footer {
   padding: 56px 0 38px;
   background:

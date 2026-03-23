@@ -95,7 +95,7 @@ function Header() {
 
                         <div className="header-actions">
                             {primaryAction ? (
-                                <Button as={NavLink} to={primaryAction.to} size="sm">
+                                <Button as={NavLink} to={primaryAction.to} tone="light" size="sm" className="header-chip-button">
                                     <FaBriefcase />
                                     {primaryAction.label}
                                 </Button>
