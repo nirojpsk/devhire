@@ -1,10 +1,11 @@
-import { Form, Button, Container, Card } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useChangePasswordMutation } from "../../api/authApiSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import getErrorMessage from "../../utils/getErrorMessage";
+import Button from "../../components/ui/Button";
 
 function ChangePasswordPage() {
     const { userInfo } = useSelector((state) => state.auth);
@@ -62,57 +63,65 @@ function ChangePasswordPage() {
     };
 
     return (
-        <Container className="py-4" style={{ maxWidth: "600px" }}>
-            <Card className="shadow-sm">
-                <Card.Body>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="mb-0">Change Password</h2>
-                        <Button as={Link} to={backLink} variant="outline-secondary" size="sm">
-                            Back
-                        </Button>
-                    </div>
+        <div>
+            <section className="page-intro">
+                <div className="page-intro__copy">
+                    <span className="eyebrow">Account security</span>
+                    <h1 className="page-title page-title--compact">Change Password</h1>
+                    <p className="page-subtitle">
+                        Keep your account secure. Password rules and submission behavior remain exactly the same.
+                    </p>
+                </div>
+                <div className="page-actions">
+                    <Button as={Link} to={backLink} tone="light">
+                        Back
+                    </Button>
+                </div>
+            </section>
 
-                    <Form onSubmit={submitHandler}>
-                        <Form.Group controlId="currentPassword" className="my-3">
-                            <Form.Label>Current Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                autoComplete="current-password"
-                            />
-                        </Form.Group>
+            <article className="detail-card" style={{ maxWidth: "760px" }}>
+                <Form onSubmit={submitHandler} className="auth-form">
+                    <Form.Group controlId="currentPassword">
+                        <Form.Label>Current Password</Form.Label>
+                        <Form.Control
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            autoComplete="current-password"
+                        />
+                    </Form.Group>
 
-                        <Form.Group controlId="newPassword" className="my-3">
-                            <Form.Label>New Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                autoComplete="new-password"
-                            />
-                            <Form.Text muted>
-                                Password must be at least 8 characters and include uppercase, lowercase, and a special character.
-                            </Form.Text>
-                        </Form.Group>
+                    <Form.Group controlId="newPassword">
+                        <Form.Label>New Password</Form.Label>
+                        <Form.Control
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            autoComplete="new-password"
+                        />
+                        <Form.Text>
+                            Password must be at least 8 characters and include uppercase, lowercase, and a special character.
+                        </Form.Text>
+                    </Form.Group>
 
-                        <Form.Group controlId="confirmNewPassword" className="my-3">
-                            <Form.Label>Confirm New Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={confirmNewPassword}
-                                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                autoComplete="new-password"
-                            />
-                        </Form.Group>
+                    <Form.Group controlId="confirmNewPassword">
+                        <Form.Label>Confirm New Password</Form.Label>
+                        <Form.Control
+                            type="password"
+                            value={confirmNewPassword}
+                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                            autoComplete="new-password"
+                        />
+                    </Form.Group>
 
-                        <Button type="submit" className="btn btn-sm" disabled={isLoading}>
+                    <div className="form-actions">
+                        <Button type="submit" disabled={isLoading}>
                             {isLoading ? "Updating..." : "Change Password"}
                         </Button>
-                    </Form>
-                </Card.Body>
-            </Card>
-        </Container>
+                    </div>
+                </Form>
+            </article>
+        </div>
     );
 }
 

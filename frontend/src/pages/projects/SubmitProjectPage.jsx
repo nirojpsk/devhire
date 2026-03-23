@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Form, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetProjectByIdQuery, useSubmitProjectMutation } from '../../api/projectApiSlice';
 import { useSelector } from 'react-redux';
 import getErrorMessage from '../../utils/getErrorMessage';
+import Button from '../../components/ui/Button';
+import ProjectStatusBadge from '../../components/projects/ProjectStatusBadge';
 
 function SubmitProjectPage() {
     const { projectId } = useParams();
@@ -50,16 +52,24 @@ function SubmitProjectPage() {
     };
 
     return (
-        <Container className='py-4' style={{ maxWidth: '800px' }}>
-            <div className='d-flex justify-content-between align-items-center mb-4'>
-                <h2 className='mb-0'>Submit Project</h2>
-                <Button as={Link} to='/developer/accepted-projects' variant='outline-secondary' size='sm'>
-                    Back to Accepted Projects
-                </Button>
-            </div>
+        <div>
+            <section className="page-intro">
+                <div className="page-intro__copy">
+                    <span className="eyebrow">Developer delivery</span>
+                    <h1 className="page-title page-title--compact">Submit Project</h1>
+                    <p className="page-subtitle">
+                        Share your final delivery link and context with a cleaner submission detail view.
+                    </p>
+                </div>
+                <div className="page-actions">
+                    <Button as={Link} to='/developer/accepted-projects' tone="light">
+                        Back to Accepted Projects
+                    </Button>
+                </div>
+            </section>
 
             {isLoading ? (
-                <div className='text-center'>
+                <div className="loading-state">
                     <Spinner animation='border' />
                 </div>
             ) : error ? (
@@ -67,88 +77,78 @@ function SubmitProjectPage() {
                     {error?.data?.message || error?.error || 'Error fetching project'}
                 </Alert>
             ) : !project ? (
-                <Alert variant='info'>Project not found.</Alert>
+                <div className="empty-state">Project not found.</div>
             ) : !isSelectedDeveloper ? (
                 <Alert variant='danger'>You are not authorized to submit this project.</Alert>
             ) : alreadySubmitted && !canResubmit ? (
-                <Alert variant='info'>
-                    This project has already been submitted.
-                    {project.submission?.link && (
-                        <>
-                            {' '}Submission link:{' '}
-                            <a href={project.submission.link} target='_blank' rel='noreferrer'>
-                                {project.submission.link}
-                            </a>
-                        </>
-                    )}
-                    {project.submission?.clientDecision?.status && (
-                        <>
-                            <br />
-                            <strong>Client Decision:</strong>{' '}
-                            {project.submission.clientDecision.status}
-                            {project.submission.clientDecision.note && (
-                                <>
-                                    <br />
-                                    <strong>Client Note:</strong>{' '}
-                                    {project.submission.clientDecision.note}
-                                </>
-                            )}
-                        </>
-                    )}
-                </Alert>
-            ) : canResubmit ? (
-                <Card className='shadow-sm'>
-                    <Card.Body>
-                        <Card.Title className='mb-3'>{project.title}</Card.Title>
-                        <Alert variant='warning'>
-                            Your previous submission was rejected by the client. You can submit an updated project link.
-                            {project.submission?.clientDecision?.note && (
-                                <>
-                                    <br />
-                                    <strong>Client Note:</strong> {project.submission.clientDecision.note}
-                                </>
-                            )}
-                        </Alert>
+                <div className="submission-shell">
+                    <section className="profile-hero surface-card animate-in">
+                        <div className="profile-hero__main">
+                            <div className="page-actions">
+                                <ProjectStatusBadge status={project.status} />
+                            </div>
+                            <h1 className="profile-title">{project.title}</h1>
+                            <p className="profile-lead">This project has already been submitted and is currently locked.</p>
+                        </div>
+                    </section>
 
-                        <Form onSubmit={submitHandler}>
-                            <Form.Group controlId='projectLink' className='my-3'>
-                                <Form.Label>Updated Project Link</Form.Label>
-                                <Form.Control
-                                    type='url'
-                                    placeholder='https://github.com/username/repo or deployed app link'
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                />
-                            </Form.Group>
-
-                            <Form.Group controlId='submissionNote' className='my-3'>
-                                <Form.Label>Updated Submission Note (Optional)</Form.Label>
-                                <Form.Control
-                                    as='textarea'
-                                    rows={4}
-                                    placeholder='Add updates based on client feedback'
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                />
-                            </Form.Group>
-
-                            <Button type='submit' className='btn btn-sm' disabled={loadingSubmit}>
-                                {loadingSubmit ? 'Submitting...' : 'Resubmit Project'}
-                            </Button>
-                        </Form>
-                    </Card.Body>
-                </Card>
+                    <article className="detail-card profile-card">
+                        <div className="detail-card__section">
+                            <Alert variant='info' className="mb-0">
+                                This project has already been submitted.
+                                {project.submission?.link ? (
+                                    <>
+                                        {' '}Submission link:{' '}
+                                        <a href={project.submission.link} target='_blank' rel='noreferrer'>
+                                            {project.submission.link}
+                                        </a>
+                                    </>
+                                ) : null}
+                                {project.submission?.clientDecision?.status ? (
+                                    <>
+                                        <br />
+                                        <strong>Client Decision:</strong>{' '}
+                                        {project.submission.clientDecision.status}
+                                        {project.submission.clientDecision.note ? (
+                                            <>
+                                                <br />
+                                                <strong>Client Note:</strong>{' '}
+                                                {project.submission.clientDecision.note}
+                                            </>
+                                        ) : null}
+                                    </>
+                                ) : null}
+                            </Alert>
+                        </div>
+                    </article>
+                </div>
             ) : (
-                <Card className='shadow-sm'>
-                    <Card.Body>
-                        <Card.Title className='mb-3'>{project.title}</Card.Title>
-                        <Card.Text>
-                            Submit the final project link once your work is complete. You can submit only once.
-                        </Card.Text>
+                <div className="submission-shell">
+                    <section className="profile-hero surface-card animate-in">
+                        <div className="profile-hero__main">
+                            <div className="page-actions">
+                                <ProjectStatusBadge status={project.status} />
+                                <span className="app-chip">{project.selectedDeveloper?.name || "Assigned developer"}</span>
+                            </div>
+                            <h1 className="profile-title">{project.title}</h1>
+                            <p className="profile-lead">
+                                {canResubmit
+                                    ? "Your previous submission was rejected. Share an updated delivery link and explain what changed."
+                                    : "Submit the final project link once your work is complete. You can submit only once unless the client requests changes."}
+                            </p>
+                        </div>
+                    </section>
 
-                        <Form onSubmit={submitHandler}>
-                            <Form.Group controlId='projectLink' className='my-3'>
-                                <Form.Label>Project Link</Form.Label>
+                    {canResubmit && project.submission?.clientDecision?.note ? (
+                        <div className="submission-banner">
+                            <strong>Client Note:</strong> {project.submission.clientDecision.note}
+                        </div>
+                    ) : null}
+
+                    <article className="detail-card profile-card">
+                        <Form onSubmit={submitHandler} className="auth-form">
+                            <Form.Group controlId='projectLink'>
+                                <Form.Label>{canResubmit ? 'Updated Project Link' : 'Project Link'}</Form.Label>
                                 <Form.Control
                                     type='url'
                                     placeholder='https://github.com/username/repo or deployed app link'
@@ -157,25 +157,27 @@ function SubmitProjectPage() {
                                 />
                             </Form.Group>
 
-                            <Form.Group controlId='submissionNote' className='my-3'>
-                                <Form.Label>Submission Note (Optional)</Form.Label>
+                            <Form.Group controlId='submissionNote'>
+                                <Form.Label>{canResubmit ? 'Updated Submission Note (Optional)' : 'Submission Note (Optional)'}</Form.Label>
                                 <Form.Control
                                     as='textarea'
                                     rows={4}
-                                    placeholder='Add any notes for the client'
+                                    placeholder={canResubmit ? 'Add updates based on client feedback' : 'Add any notes for the client'}
                                     value={note}
                                     onChange={(e) => setNote(e.target.value)}
                                 />
                             </Form.Group>
 
-                            <Button type='submit' className='btn btn-sm' disabled={loadingSubmit}>
-                                {loadingSubmit ? 'Submitting...' : 'Submit Project'}
-                            </Button>
+                            <div className="form-actions">
+                                <Button type='submit' disabled={loadingSubmit}>
+                                    {loadingSubmit ? 'Submitting...' : canResubmit ? 'Resubmit Project' : 'Submit Project'}
+                                </Button>
+                            </div>
                         </Form>
-                    </Card.Body>
-                </Card>
+                    </article>
+                </div>
             )}
-        </Container>
+        </div>
     );
 }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Spinner, Alert, Badge, Button, Form } from "react-bootstrap";
+import { Spinner, Alert, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
@@ -8,6 +8,9 @@ import {
     useReviewDeveloperForProjectMutation,
 } from "../../api/projectApiSlice";
 import getErrorMessage from "../../utils/getErrorMessage";
+import Button from "../../components/ui/Button";
+import BidStatusBadge from "../../components/bids/BidStatusBadge";
+import ProjectStatusBadge from "../../components/projects/ProjectStatusBadge";
 
 function SubmittedProjectsPage() {
     const { data, isLoading, error } = useGetSubmittedProjectsQuery();
@@ -17,6 +20,15 @@ function SubmittedProjectsPage() {
     const [reviewInputs, setReviewInputs] = useState({});
 
     const projects = data?.projects || [];
+    const pendingDecisions = projects.filter(
+        (project) => !project.submission?.clientDecision?.status || project.submission?.clientDecision?.status === "pending"
+    ).length;
+    const acceptedDecisions = projects.filter(
+        (project) => project.submission?.clientDecision?.status === "accepted"
+    ).length;
+    const rejectedDecisions = projects.filter(
+        (project) => project.submission?.clientDecision?.status === "rejected"
+    ).length;
 
     const handleDecision = async (projectId, action) => {
         const note = decisionNotes[projectId]?.trim();
@@ -65,113 +77,126 @@ function SubmittedProjectsPage() {
     };
 
     return (
-        <Container className="py-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="mb-0">Submitted Projects</h2>
-                <Button as={Link} to="/client/dashboard" variant="outline-secondary" size="sm">
-                    Back to Dashboard
-                </Button>
-            </div>
-
-            {isLoading ? (
-                <div className="text-center">
-                    <Spinner animation="border" />
+        <div>
+            <section className="page-intro">
+                <div className="page-intro__copy">
+                    <span className="eyebrow">Client review queue</span>
+                    <h1 className="page-title page-title--compact">Submitted Projects</h1>
+                    <p className="page-subtitle">
+                        Review submitted work in a more spacious layout, with room for submission notes, client decisions, and developer ratings.
+                    </p>
                 </div>
-            ) : error ? (
-                <Alert variant="danger">
-                    {error?.data?.message || error?.error || "Error fetching submitted projects"}
-                </Alert>
-            ) : projects.length === 0 ? (
-                <Alert variant="info">No submitted projects yet.</Alert>
-            ) : (
-                <Row>
-                    {projects.map((project) => {
-                        const decisionStatus = project.submission?.clientDecision?.status || "pending";
-                        const canReview = decisionStatus === "pending";
-                        const canRateDeveloper = decisionStatus === "accepted" || decisionStatus === "rejected";
-                        const hasSubmittedReview = !!project.submission?.clientReview?.reviewedAt;
-                        const reviewLocked = decisionStatus === "accepted" && hasSubmittedReview;
-                        return (
-                            <Col key={project._id} sm={12} md={6} lg={6} className="mb-4">
-                                <Card className="h-100 shadow-sm">
-                                    <Card.Body>
-                                        <Card.Title>{project.title}</Card.Title>
+                <div className="page-actions">
+                    <Button as={Link} to="/client/dashboard" tone="light">
+                        Back to Dashboard
+                    </Button>
+                </div>
+            </section>
 
-                                        <Card.Text>
-                                            <strong>Project Status:</strong>{" "}
-                                            <Badge bg="secondary">
-                                                {project.status === "in-progress" ? "in progress" : project.status}
-                                            </Badge>
-                                        </Card.Text>
+            <section className="metric-grid">
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Submitted Projects</div>
+                    <div className="stats-card__value">{projects.length}</div>
+                    <p className="metric-note">Everything waiting in or completed through review</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Pending Decision</div>
+                    <div className="stats-card__value">{pendingDecisions}</div>
+                    <p className="metric-note">Need your acceptance or rejection note</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Accepted</div>
+                    <div className="stats-card__value">{acceptedDecisions}</div>
+                    <p className="metric-note">Submitted work you have approved</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Rejected</div>
+                    <div className="stats-card__value">{rejectedDecisions}</div>
+                    <p className="metric-note">Projects currently sent back for changes</p>
+                </article>
+            </section>
 
-                                        <Card.Text>
-                                            <strong>Submitted By:</strong>{" "}
-                                            {project.submission?.submittedBy?.name || project.selectedDeveloper?.name || "N/A"}
-                                        </Card.Text>
+            <section className="dashboard-section">
+                {isLoading ? (
+                    <div className="loading-state">
+                        <Spinner animation="border" />
+                    </div>
+                ) : error ? (
+                    <Alert variant="danger">
+                        {error?.data?.message || error?.error || "Error fetching submitted projects"}
+                    </Alert>
+                ) : projects.length === 0 ? (
+                    <div className="empty-state">No submitted projects yet.</div>
+                ) : (
+                    <div className="dashboard-stack">
+                        {projects.map((project) => {
+                            const decisionStatus = project.submission?.clientDecision?.status || "pending";
+                            const canReview = decisionStatus === "pending";
+                            const canRateDeveloper = decisionStatus === "accepted" || decisionStatus === "rejected";
+                            const hasSubmittedReview = !!project.submission?.clientReview?.reviewedAt;
+                            const reviewLocked = decisionStatus === "accepted" && hasSubmittedReview;
 
-                                        <Card.Text>
-                                            <strong>Submitted On:</strong>{" "}
-                                            {project.submission?.submittedAt
-                                                ? new Date(project.submission.submittedAt).toLocaleDateString()
-                                                : "N/A"}
-                                        </Card.Text>
+                            return (
+                                <article key={project._id} className="detail-card interactive-card">
+                                    <div className="detail-card__section">
+                                        <div className="page-actions">
+                                            <ProjectStatusBadge status={project.status} />
+                                            <BidStatusBadge status={decisionStatus} />
+                                            <span className="app-chip">
+                                                {project.selectedDeveloper?.name || project.submission?.submittedBy?.name || "Developer"}
+                                            </span>
+                                        </div>
 
-                                        <Card.Text>
-                                            <strong>Submission Link:</strong>{" "}
-                                            {project.submission?.link ? (
-                                                <a href={project.submission.link} target="_blank" rel="noreferrer">
-                                                    Open Link
-                                                </a>
-                                            ) : (
-                                                "N/A"
-                                            )}
-                                        </Card.Text>
+                                        <h2 className="detail-card__title">{project.title}</h2>
 
-                                        <Card.Text>
-                                            <strong>Developer Note:</strong>
-                                            <br />
-                                            {project.submission?.note || "No note provided."}
-                                        </Card.Text>
+                                        <div className="meta-row">
+                                            <span><strong>Submitted By:</strong> {project.submission?.submittedBy?.name || project.selectedDeveloper?.name || "N/A"}</span>
+                                            <span><strong>Submitted On:</strong> {project.submission?.submittedAt ? new Date(project.submission.submittedAt).toLocaleDateString() : "N/A"}</span>
+                                            <span>
+                                                <strong>Submission Link:</strong>{" "}
+                                                {project.submission?.link ? (
+                                                    <a href={project.submission.link} target="_blank" rel="noreferrer">
+                                                        Open Link
+                                                    </a>
+                                                ) : (
+                                                    "N/A"
+                                                )}
+                                            </span>
+                                        </div>
 
-                                        <Card.Text>
-                                            <strong>Client Decision:</strong>{" "}
-                                            <Badge bg={decisionStatus === "accepted" ? "success" : decisionStatus === "rejected" ? "danger" : "warning"}>
-                                                {decisionStatus}
-                                            </Badge>
-                                        </Card.Text>
+                                        <p>{project.submission?.note || "No developer note was provided with this submission."}</p>
+                                    </div>
 
-                                        {project.submission?.clientDecision?.note && (
-                                            <Card.Text>
-                                                <strong>Your Note:</strong>
-                                                <br />
-                                                {project.submission.clientDecision.note}
-                                            </Card.Text>
-                                        )}
+                                    {project.submission?.clientDecision?.note ? (
+                                        <div className="detail-card__section">
+                                            <h3>Your latest decision note</h3>
+                                            <p>{project.submission.clientDecision.note}</p>
+                                        </div>
+                                    ) : null}
 
-                                        {canRateDeveloper && (
-                                            <Card className="mb-3 border">
-                                                <Card.Body>
-                                                    <Card.Title className="fs-6">Rate Developer</Card.Title>
+                                    {canRateDeveloper ? (
+                                        <div className="detail-card__section">
+                                            <div className="surface-card surface-card--soft">
+                                                <div className="stacked-info">
+                                                    <h3>Rate developer</h3>
 
-                                                    {hasSubmittedReview && (
-                                                        <Alert variant="success" className="py-2">
-                                                            Existing review:
+                                                    {hasSubmittedReview ? (
+                                                        <Alert variant="success" className="mb-0">
+                                                            <strong>Existing review:</strong>
                                                             <br />
-                                                            <strong>Rating:</strong> {project.submission.clientReview.rating}/5
+                                                            Rating: {project.submission.clientReview.rating}/5
                                                             <br />
-                                                            <strong>Comment:</strong> {project.submission.clientReview.comment}
+                                                            Comment: {project.submission.clientReview.comment}
                                                         </Alert>
-                                                    )}
+                                                    ) : null}
 
-                                                    {reviewLocked && (
-                                                        <Alert variant="info" className="mb-0 py-2">
+                                                    {reviewLocked ? (
+                                                        <Alert variant="info" className="mb-0">
                                                             Review is locked because this project has been accepted.
                                                         </Alert>
-                                                    )}
-
-                                                    {!reviewLocked && (
+                                                    ) : (
                                                         <>
-                                                            <Form.Group controlId={`rating-${project._id}`} className="mb-2">
+                                                            <Form.Group controlId={`rating-${project._id}`}>
                                                                 <Form.Label>Rating</Form.Label>
                                                                 <Form.Select
                                                                     value={reviewInputs[project._id]?.rating || project.submission?.clientReview?.rating || ""}
@@ -213,32 +238,34 @@ function SubmittedProjectsPage() {
                                                                 />
                                                             </Form.Group>
 
-                                                            <Button
-                                                                className="mt-2"
-                                                                size="sm"
-                                                                variant="outline-success"
-                                                                disabled={loadingDeveloperReview}
-                                                                onClick={() => handleAddReview(project)}
-                                                            >
-                                                                {loadingDeveloperReview
-                                                                    ? "Submitting..."
-                                                                    : hasSubmittedReview
-                                                                        ? "Update Review"
-                                                                        : "Submit Review"}
-                                                            </Button>
+                                                            <div className="page-actions">
+                                                                <Button
+                                                                    tone="success"
+                                                                    disabled={loadingDeveloperReview}
+                                                                    onClick={() => handleAddReview(project)}
+                                                                >
+                                                                    {loadingDeveloperReview
+                                                                        ? "Submitting..."
+                                                                        : hasSubmittedReview
+                                                                            ? "Update Review"
+                                                                            : "Submit Review"}
+                                                                </Button>
+                                                            </div>
                                                         </>
                                                     )}
-                                                </Card.Body>
-                                            </Card>
-                                        )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null}
 
-                                        {canReview && (
-                                            <Form.Group controlId={`decision-note-${project._id}`} className="my-3">
-                                                <Form.Label>Decision Note</Form.Label>
+                                    {canReview ? (
+                                        <div className="detail-card__section">
+                                            <h3>Decision note</h3>
+                                            <Form.Group controlId={`decision-note-${project._id}`}>
                                                 <Form.Control
                                                     as="textarea"
                                                     rows={3}
-                                                    placeholder="Write your acceptance/rejection note"
+                                                    placeholder="Write your acceptance or rejection note"
                                                     value={decisionNotes[project._id] || ""}
                                                     onChange={(e) =>
                                                         setDecisionNotes((prev) => ({
@@ -248,42 +275,42 @@ function SubmittedProjectsPage() {
                                                     }
                                                 />
                                             </Form.Group>
-                                        )}
+                                        </div>
+                                    ) : null}
 
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            <Button as={Link} to={`/projects/${project._id}`} variant="dark" size="sm">
+                                    <div className="detail-card__section">
+                                        <div className="page-actions">
+                                            <Button as={Link} to={`/projects/${project._id}`} tone="light">
                                                 View Project
                                             </Button>
 
-                                            {canReview && (
+                                            {canReview ? (
                                                 <>
                                                     <Button
-                                                        variant="success"
-                                                        size="sm"
+                                                        tone="success"
                                                         disabled={loadingReview}
                                                         onClick={() => handleDecision(project._id, "accept")}
                                                     >
                                                         Accept Project
                                                     </Button>
                                                     <Button
-                                                        variant="danger"
-                                                        size="sm"
+                                                        tone="danger"
                                                         disabled={loadingReview}
                                                         onClick={() => handleDecision(project._id, "reject")}
                                                     >
                                                         Reject Project
                                                     </Button>
                                                 </>
-                                            )}
+                                            ) : null}
                                         </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        );
-                    })}
-                </Row>
-            )}
-        </Container>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                )}
+            </section>
+        </div>
     );
 }
 

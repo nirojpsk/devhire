@@ -1,6 +1,8 @@
-import { Container, Row, Col, Card, Spinner, Alert, Badge, Button } from 'react-bootstrap';
+import { Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useGetMyBidsQuery } from '../../api/bidApiSlice';
+import Button from '../../components/ui/Button';
+import BidStatusBadge from '../../components/bids/BidStatusBadge';
 
 function AcceptedProjectsPage() {
     const { data, isLoading, error } = useGetMyBidsQuery();
@@ -10,84 +12,103 @@ function AcceptedProjectsPage() {
         (bid) => bid.status === 'accepted' && bid.projectId?._id
     );
 
+    const submittedCount = acceptedProjectBids.filter((bid) => bid.projectId?.submission?.submittedAt).length;
+    const pendingClientDecisionCount = acceptedProjectBids.filter(
+        (bid) => bid.projectId?.submission?.submittedAt && !bid.projectId?.submission?.clientDecision?.status
+    ).length;
+
     return (
-        <Container className='py-4'>
-            <div className='d-flex justify-content-between align-items-center mb-4'>
-                <h2 className='mb-0'>Accepted Projects</h2>
-                <Button as={Link} to='/developer/dashboard' variant='outline-secondary' size='sm'>
-                    Back to Dashboard
-                </Button>
-            </div>
-
-            {isLoading ? (
-                <div className='text-center'>
-                    <Spinner animation='border' />
+        <div>
+            <section className="page-intro">
+                <div className="page-intro__copy">
+                    <span className="eyebrow">Delivery queue</span>
+                    <h1 className="page-title page-title--compact">Accepted Projects</h1>
+                    <p className="page-subtitle">
+                        Track accepted work in a wider, calmer layout with room for submission history, client feedback, and next actions.
+                    </p>
                 </div>
-            ) : error ? (
-                <Alert variant='danger'>
-                    {error?.data?.message || error?.error || 'Error fetching accepted projects'}
-                </Alert>
-            ) : acceptedProjectBids.length === 0 ? (
-                <Alert variant='info'>No accepted projects yet.</Alert>
-            ) : (
-                <Row>
-                    {acceptedProjectBids.map((bid) => (
-                        <Col key={bid._id} sm={12} md={6} lg={4} className='mb-4'>
-                            <Card className='h-100 shadow-sm'>
-                                <Card.Body>
-                                    <Card.Title>{bid.projectId?.title || 'Project'}</Card.Title>
+                <div className="page-actions">
+                    <Button as={Link} to="/developer/dashboard" tone="light">
+                        Back to Dashboard
+                    </Button>
+                </div>
+            </section>
 
-                                    <Card.Text>
-                                        <strong>Status:</strong>{' '}
-                                        <Badge bg='success'>accepted</Badge>
-                                    </Card.Text>
+            <section className="metric-grid">
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Accepted Projects</div>
+                    <div className="stats-card__value">{acceptedProjectBids.length}</div>
+                    <p className="metric-note">Projects you are currently responsible for delivering</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Submitted</div>
+                    <div className="stats-card__value">{submittedCount}</div>
+                    <p className="metric-note">Work already sent back to the client</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Awaiting Decision</div>
+                    <div className="stats-card__value">{pendingClientDecisionCount}</div>
+                    <p className="metric-note">Submitted projects still waiting for client review</p>
+                </article>
+                <article className="stats-card interactive-card">
+                    <div className="stats-card__label">Ready to Submit</div>
+                    <div className="stats-card__value">{acceptedProjectBids.length - submittedCount}</div>
+                    <p className="metric-note">Accepted projects with no submission yet</p>
+                </article>
+            </section>
 
-                                    <Card.Text>
-                                        <strong>Your Bid Amount:</strong> ${bid.bidAmount}
-                                    </Card.Text>
+            <section className="dashboard-section">
+                {isLoading ? (
+                    <div className="loading-state">
+                        <Spinner animation="border" />
+                    </div>
+                ) : error ? (
+                    <Alert variant='danger'>
+                        {error?.data?.message || error?.error || 'Error fetching accepted projects'}
+                    </Alert>
+                ) : acceptedProjectBids.length === 0 ? (
+                    <div className="empty-state">No accepted projects yet.</div>
+                ) : (
+                    <div className="dashboard-stack">
+                        {acceptedProjectBids.map((bid) => (
+                            <article key={bid._id} className="dashboard-card dashboard-list-card interactive-card">
+                                <div className="dashboard-list-card__main">
+                                    <div className="page-actions">
+                                        <BidStatusBadge status="accepted" />
+                                        <span className="app-chip">
+                                            {bid.projectId?.skillsRequired?.[0] || "Delivery"}
+                                        </span>
+                                    </div>
 
-                                    <Card.Text>
-                                        <strong>Delivery Time:</strong> {bid.deliveryTime} days
-                                    </Card.Text>
+                                    <h2 className="dashboard-list-card__title">{bid.projectId?.title || 'Project'}</h2>
 
-                                    <Card.Text>
-                                        <strong>Project Budget:</strong>{' '}
-                                        ${bid.projectId?.budget?.min} - ${bid.projectId?.budget?.max}
-                                    </Card.Text>
-
-                                    <Card.Text>
-                                        <strong>Deadline:</strong>{' '}
-                                        {bid.projectId?.deadline
-                                            ? new Date(bid.projectId.deadline).toLocaleDateString()
-                                            : 'N/A'}
-                                    </Card.Text>
+                                    <div className="meta-row">
+                                        <span><strong>Your Bid:</strong> ${bid.bidAmount}</span>
+                                        <span><strong>Delivery Time:</strong> {bid.deliveryTime} days</span>
+                                        <span><strong>Project Budget:</strong> ${bid.projectId?.budget?.min} - ${bid.projectId?.budget?.max}</span>
+                                        <span><strong>Deadline:</strong> {bid.projectId?.deadline ? new Date(bid.projectId.deadline).toLocaleDateString() : 'N/A'}</span>
+                                    </div>
 
                                     {bid.projectId?.submission?.submittedAt ? (
-                                        <Alert variant='success' className='py-2'>
-                                            Project submitted on{' '}
-                                            {new Date(bid.projectId.submission.submittedAt).toLocaleDateString()}.
-                                            <br />
-                                            {bid.projectId.submission.link && (
+                                        <Alert variant='success' className='mb-0'>
+                                            <strong>Project submitted:</strong>{' '}
+                                            {new Date(bid.projectId.submission.submittedAt).toLocaleDateString()}
+                                            {bid.projectId.submission.link ? (
                                                 <>
-                                                    Link:{' '}
+                                                    {' '}|{' '}
                                                     <a href={bid.projectId.submission.link} target='_blank' rel='noreferrer'>
                                                         Open submission
                                                     </a>
                                                 </>
-                                            )}
+                                            ) : null}
                                         </Alert>
                                     ) : (
-                                        <Button
-                                            as={Link}
-                                            to={`/projects/${bid.projectId?._id}/submit`}
-                                            variant='success'
-                                            size='sm'
-                                        >
-                                            Submit Project
-                                        </Button>
+                                        <p className="proposal-summary">
+                                            This project has been accepted and is ready for your delivery workflow.
+                                        </p>
                                     )}
 
-                                    {bid.projectId?.submission?.clientDecision?.status && (
+                                    {bid.projectId?.submission?.clientDecision?.status ? (
                                         <Alert
                                             variant={
                                                 bid.projectId.submission.clientDecision.status === 'accepted'
@@ -96,48 +117,56 @@ function AcceptedProjectsPage() {
                                                         ? 'danger'
                                                         : 'warning'
                                             }
-                                            className='py-2'
+                                            className='mb-0'
                                         >
                                             <strong>Client Decision:</strong>{' '}
                                             {bid.projectId.submission.clientDecision.status}
-                                            {bid.projectId.submission.clientDecision.note && (
+                                            {bid.projectId.submission.clientDecision.note ? (
                                                 <>
                                                     <br />
                                                     <strong>Client Note:</strong>{' '}
                                                     {bid.projectId.submission.clientDecision.note}
                                                 </>
-                                            )}
+                                            ) : null}
                                         </Alert>
-                                    )}
+                                    ) : null}
+                                </div>
 
-                                    {bid.projectId?.submission?.clientDecision?.status === 'rejected' && (
+                                <div className="dashboard-list-card__aside">
+                                    {!bid.projectId?.submission?.submittedAt ? (
                                         <Button
                                             as={Link}
                                             to={`/projects/${bid.projectId?._id}/submit`}
-                                            variant='warning'
-                                            size='sm'
+                                            tone='success'
+                                        >
+                                            Submit Project
+                                        </Button>
+                                    ) : null}
+
+                                    {bid.projectId?.submission?.clientDecision?.status === 'rejected' ? (
+                                        <Button
+                                            as={Link}
+                                            to={`/projects/${bid.projectId?._id}/submit`}
+                                            tone='light'
                                         >
                                             Resubmit Project
                                         </Button>
-                                    )}
+                                    ) : null}
 
-                                    <div className='mt-2'>
-                                        <Button
-                                            as={Link}
-                                            to={`/projects/${bid.projectId?._id}`}
-                                            variant='dark'
-                                            size='sm'
-                                        >
-                                            View Project
-                                        </Button>
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            )}
-        </Container>
+                                    <Button
+                                        as={Link}
+                                        to={`/projects/${bid.projectId?._id}`}
+                                        tone='light'
+                                    >
+                                        View Project
+                                    </Button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </section>
+        </div>
     );
 }
 
