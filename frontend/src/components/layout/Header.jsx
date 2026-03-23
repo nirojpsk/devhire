@@ -1,5 +1,6 @@
 import { Container, Navbar } from "react-bootstrap";
 import { FaBriefcase, FaTachometerAlt, FaUserCircle } from "react-icons/fa";
+import { FiMoon, FiSun } from "react-icons/fi";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -8,8 +9,9 @@ import apiSlice from "../../api/apiSlice";
 import { clearCredentials } from "../../slices/authSlice";
 import getErrorMessage from "../../utils/getErrorMessage";
 import Button from "../ui/Button";
+import { THEMES } from "../../utils/theme";
 
-function Header() {
+function Header({ theme, onToggleTheme }) {
     const { userInfo } = useSelector((state) => state.auth);
     const [logout] = useLogoutMutation();
     const dispatch = useDispatch();
@@ -94,6 +96,23 @@ function Header() {
                         </nav>
 
                         <div className="header-actions">
+                            <Button
+                                type="button"
+                                tone="light"
+                                size="sm"
+                                className="theme-toggle"
+                                onClick={onToggleTheme}
+                                aria-label={theme === THEMES.DARK ? "Switch to light mode" : "Switch to dark mode"}
+                                title={theme === THEMES.DARK ? "Switch to light mode" : "Switch to dark mode"}
+                            >
+                                <span className="theme-toggle__icon" aria-hidden="true">
+                                    {theme === THEMES.DARK ? <FiSun /> : <FiMoon />}
+                                </span>
+                                <span className="theme-toggle__label">
+                                    {theme === THEMES.DARK ? "Light mode" : "Dark mode"}
+                                </span>
+                            </Button>
+
                             {primaryAction ? (
                                 <Button as={NavLink} to={primaryAction.to} tone="light" size="sm" className="header-chip-button">
                                     <FaBriefcase />

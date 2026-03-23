@@ -1,5 +1,8 @@
 :root {
   --app-bg: #f4f7fb;
+  --app-bg-top: #f7faff;
+  --app-bg-bottom: #eef3fa;
+  --app-glow: rgba(29, 94, 234, 0.1);
   --surface: #ffffff;
   --surface-alt: #f8fbff;
   --surface-muted: #eef3fb;
@@ -33,6 +36,34 @@
   --font-display: "Aptos Display", "Segoe UI", "Aptos", system-ui, sans-serif;
 }
 
+:root[data-theme="dark"] {
+  --app-bg: #08111f;
+  --app-bg-top: #0d1628;
+  --app-bg-bottom: #07101d;
+  --app-glow: rgba(83, 136, 255, 0.18);
+  --surface: #0f1a2c;
+  --surface-alt: #132238;
+  --surface-muted: #162742;
+  --surface-dark: #050c17;
+  --text-strong: #f5f8ff;
+  --text-main: #d6def0;
+  --text-soft: #95a3be;
+  --border: #24324b;
+  --border-strong: #334461;
+  --primary: #72a7ff;
+  --primary-strong: #5a92f3;
+  --primary-soft: #17315a;
+  --success: #3fd198;
+  --success-soft: #12392e;
+  --warning: #e7b95f;
+  --warning-soft: #473718;
+  --danger: #ff7a7a;
+  --danger-soft: #472126;
+  --shadow-sm: 0 14px 32px rgba(2, 8, 23, 0.28);
+  --shadow-md: 0 28px 64px rgba(2, 8, 23, 0.34);
+  --shadow-lg: 0 38px 96px rgba(2, 8, 23, 0.42);
+}
+
 *,
 *::before,
 *::after {
@@ -50,11 +81,14 @@ body {
   font-family: var(--font-sans);
   color: var(--text-main);
   background:
-    radial-gradient(circle at top left, rgba(29, 94, 234, 0.1), transparent 32%),
-    linear-gradient(180deg, #f7faff 0%, var(--app-bg) 32%, #eef3fa 100%);
+    radial-gradient(circle at top left, var(--app-glow), transparent 32%),
+    linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg) 32%, var(--app-bg-bottom) 100%);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition:
+    background var(--transition-slow),
+    color var(--transition-base);
 }
 
 #root {
@@ -158,8 +192,8 @@ p {
   z-index: 1040;
   padding: 12px 0;
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid rgba(226, 232, 242, 0.95);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-strong) 72%, transparent);
 }
 
 .site-navbar {
@@ -188,9 +222,9 @@ p {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(234, 242, 255, 0.94));
-  border: 1px solid rgba(217, 227, 240, 0.95);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 96%, transparent), color-mix(in srgb, var(--surface-muted) 94%, transparent));
+  border: 1px solid color-mix(in srgb, var(--border) 95%, transparent);
+  box-shadow: var(--shadow-sm);
 }
 
 .brand-mark__logo-core {
@@ -282,14 +316,30 @@ p {
   margin-left: auto;
 }
 
+.theme-toggle {
+  min-width: 126px;
+  justify-content: center;
+}
+
+.theme-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.theme-toggle__label {
+  white-space: nowrap;
+}
+
 .user-chip {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 16px;
-  background: #fff;
-  border: 1px solid rgba(217, 227, 240, 0.9);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
   color: var(--text-strong);
   font-weight: 600;
 }
@@ -308,15 +358,15 @@ p {
 .site-footer {
   padding: 56px 0 38px;
   background:
-    linear-gradient(180deg, rgba(250, 252, 255, 0), rgba(255, 255, 255, 0.82) 24%, rgba(255, 255, 255, 0.95) 100%);
-  border-top: 1px solid rgba(217, 227, 240, 0.75);
+    linear-gradient(180deg, color-mix(in srgb, var(--app-bg-top) 0%, transparent), color-mix(in srgb, var(--surface) 82%, transparent) 24%, color-mix(in srgb, var(--surface) 96%, transparent) 100%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
 }
 
 .site-footer__panel {
   padding: 20px 28px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid rgba(217, 227, 240, 0.85);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
   box-shadow: var(--shadow-md);
 }
 
@@ -640,11 +690,11 @@ p {
 .btn-outline-secondary,
 .btn-light {
   --bs-btn-color: var(--text-main);
-  --bs-btn-border-color: rgba(197, 210, 227, 0.95);
+  --bs-btn-border-color: color-mix(in srgb, var(--border-strong) 95%, transparent);
   --bs-btn-hover-color: var(--text-strong);
-  --bs-btn-hover-border-color: rgba(29, 94, 234, 0.2);
-  --bs-btn-hover-bg: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.9);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--primary) 22%, var(--border-strong));
+  --bs-btn-hover-bg: color-mix(in srgb, var(--surface) 90%, transparent);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 
 .btn-success {
@@ -679,8 +729,8 @@ p {
 
 .navbar-toggler {
   border-radius: 14px;
-  border-color: rgba(197, 210, 227, 0.95);
-  background: rgba(255, 255, 255, 0.94);
+  border-color: color-mix(in srgb, var(--border-strong) 95%, transparent);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
 }
 
 .navbar-toggler:focus {
@@ -691,10 +741,10 @@ p {
 .form-select {
   min-height: 52px;
   border-radius: 16px;
-  border: 1px solid rgba(197, 210, 227, 0.95);
-  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid color-mix(in srgb, var(--border-strong) 95%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
   color: var(--text-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--surface-alt) 95%, transparent);
 }
 
 .form-control:focus,
@@ -720,9 +770,9 @@ textarea.form-control {
 
 .card {
   border-radius: var(--radius-md);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   box-shadow: var(--shadow-md);
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
 }
 
 .card-title {
@@ -777,8 +827,8 @@ textarea.form-control {
 
 .table > :not(caption) > * > * {
   padding: 1rem 1.1rem;
-  border-color: rgba(217, 227, 240, 0.8);
-  background: rgba(255, 255, 255, 0.92);
+  border-color: color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
 }
 
 .table thead th {
@@ -969,8 +1019,8 @@ textarea.form-control {
 .feature-card {
   padding: 20px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
 }
 
@@ -1006,7 +1056,7 @@ textarea.form-control {
   gap: 12px;
   margin-top: 18px;
   padding-top: 18px;
-  border-top: 1px solid rgba(217, 227, 240, 0.9);
+  border-top: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
   color: var(--text-soft);
   font-weight: 600;
 }
@@ -1015,8 +1065,8 @@ textarea.form-control {
   padding: 28px;
   border-radius: var(--radius-md);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 250, 255, 0.94));
-  border: 1px solid rgba(217, 227, 240, 0.88);
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-alt) 94%, transparent));
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
   box-shadow: var(--shadow-md);
 }
 
@@ -1045,7 +1095,7 @@ textarea.form-control {
   display: grid;
   gap: 6px;
   padding: 14px 0;
-  border-top: 1px solid rgba(217, 227, 240, 0.75);
+  border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
 }
 
 .audience-card--dark .audience-list li {
@@ -1057,8 +1107,8 @@ textarea.form-control {
   text-align: center;
   border-radius: 34px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(230, 239, 255, 0.92));
-  border: 1px solid rgba(217, 227, 240, 0.88);
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 95%, transparent), color-mix(in srgb, var(--surface-muted) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
   box-shadow: var(--shadow-lg);
 }
 
@@ -1075,7 +1125,7 @@ textarea.form-control {
   gap: 0;
   overflow: hidden;
   border-radius: 38px;
-  border: 1px solid rgba(217, 227, 240, 0.92);
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
   box-shadow: 0 28px 60px rgba(15, 23, 42, 0.1);
 }
 
@@ -1095,7 +1145,7 @@ textarea.form-control {
 }
 
 .auth-form-panel {
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
 }
 
 .auth-form-panel__header {
@@ -1213,7 +1263,7 @@ textarea.form-control {
   top: 50%;
   left: 0;
   right: 0;
-  border-top: 1px solid rgba(217, 227, 240, 0.92);
+  border-top: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
   z-index: 0;
 }
 
@@ -1222,7 +1272,7 @@ textarea.form-control {
   z-index: 1;
   display: inline-block;
   padding: 0 12px;
-  background: rgba(255, 255, 255, 0.98);
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
 }
 
 .dashboard-shell {
@@ -1310,7 +1360,7 @@ textarea.form-control {
 }
 
 .dashboard-nav__link:hover {
-  background: rgba(255, 255, 255, 0.82);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   color: var(--text-strong);
   transform: translateX(2px);
 }
@@ -1414,8 +1464,8 @@ textarea.form-control {
 }
 
 .dashboard-panel {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   border-radius: 22px;
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
   padding: 18px 22px;
@@ -1481,7 +1531,7 @@ textarea.form-control {
 .dashboard-progress {
   width: 100%;
   height: 8px;
-  background: rgba(220, 226, 235, 0.9);
+  background: color-mix(in srgb, var(--border) 74%, transparent);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1542,7 +1592,7 @@ textarea.form-control {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   padding: 14px 0;
-  border-top: 1px solid rgba(225, 231, 241, 0.9);
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .dashboard-activity-item:first-child {
@@ -1680,9 +1730,9 @@ textarea.form-control {
   padding: 30px 32px;
   border-radius: 32px;
   background:
-    radial-gradient(circle at right top, rgba(29, 94, 234, 0.14), transparent 24%),
-    linear-gradient(140deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.92));
-  border: 1px solid rgba(217, 227, 240, 0.92);
+    radial-gradient(circle at right top, color-mix(in srgb, var(--primary) 14%, transparent), transparent 24%),
+    linear-gradient(140deg, color-mix(in srgb, var(--surface) 96%, transparent), color-mix(in srgb, var(--surface-muted) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
   box-shadow: 0 22px 44px rgba(15, 23, 42, 0.08);
 }
 
@@ -1702,8 +1752,8 @@ textarea.form-control {
   gap: 6px;
   padding: 18px 20px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(217, 227, 240, 0.9);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
 }
 
 .market-hero__stat span {
@@ -1819,8 +1869,8 @@ textarea.form-control {
   gap: 8px;
   padding: 18px 20px;
   border-radius: 22px;
-  background: rgba(248, 251, 255, 0.92);
-  border: 1px solid rgba(217, 227, 240, 0.88);
+  background: color-mix(in srgb, var(--surface-alt) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
 }
 
 .project-fact-card span {
@@ -1883,7 +1933,7 @@ textarea.form-control {
 .detail-card__section + .detail-card__section {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid rgba(217, 227, 240, 0.86);
+  border-top: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
 }
 
 .profile-hero {
@@ -1988,7 +2038,7 @@ textarea.form-control {
 
 .project-editor-form__section + .project-editor-form__section {
   padding-top: 24px;
-  border-top: 1px solid rgba(217, 227, 240, 0.86);
+  border-top: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
 }
 
 .project-editor-form__grid {
@@ -2001,7 +2051,7 @@ textarea.form-control {
   padding: 18px;
   border-radius: 20px;
   background: var(--surface-alt);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
 }
 
 .profile-stat__label {
@@ -2031,7 +2081,7 @@ textarea.form-control {
   justify-content: space-between;
   gap: 16px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(217, 227, 240, 0.8);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
 }
 
 .profile-link-row:last-child {
@@ -2060,8 +2110,8 @@ textarea.form-control {
 .submission-banner {
   padding: 20px 22px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   box-shadow: var(--shadow-md);
 }
 
@@ -2075,7 +2125,7 @@ textarea.form-control {
   justify-content: space-between;
   gap: 14px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(217, 227, 240, 0.7);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .detail-list__item:last-child {
@@ -2112,7 +2162,7 @@ textarea.form-control {
   padding: 18px;
   border-radius: 24px;
   background: var(--surface-alt);
-  border: 1px solid rgba(217, 227, 240, 0.92);
+  border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
 }
 
 .proposal-layout__content {
@@ -2136,11 +2186,128 @@ textarea.form-control {
 .empty-state {
   padding: 30px;
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(217, 227, 240, 0.86);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   box-shadow: var(--shadow-md);
   color: var(--text-soft);
   text-align: center;
+}
+
+:root[data-theme="dark"] .surface-card,
+:root[data-theme="dark"] .public-card,
+:root[data-theme="dark"] .auth-panel,
+:root[data-theme="dark"] .project-list-card,
+:root[data-theme="dark"] .dashboard-card,
+:root[data-theme="dark"] .detail-card,
+:root[data-theme="dark"] .sidebar-card,
+:root[data-theme="dark"] .stats-card,
+:root[data-theme="dark"] .dashboard-panel,
+:root[data-theme="dark"] .feature-card,
+:root[data-theme="dark"] .submission-banner,
+:root[data-theme="dark"] .empty-state,
+:root[data-theme="dark"] .project-fact-card,
+:root[data-theme="dark"] .proposal-layout__profile-card,
+:root[data-theme="dark"] .profile-stat,
+:root[data-theme="dark"] .site-footer__panel,
+:root[data-theme="dark"] .card {
+  box-shadow: 0 24px 56px rgba(2, 8, 23, 0.34);
+}
+
+:root[data-theme="dark"] .hero-panel {
+  background:
+    radial-gradient(circle at left top, rgba(114, 167, 255, 0.16), transparent 28%),
+    linear-gradient(140deg, rgba(11, 20, 37, 0.96), rgba(18, 33, 60, 0.94));
+  border-color: color-mix(in srgb, var(--border) 92%, transparent);
+  box-shadow: 0 28px 64px rgba(2, 8, 23, 0.38);
+}
+
+:root[data-theme="dark"] .hero-metric,
+:root[data-theme="dark"] .market-hero__stat,
+:root[data-theme="dark"] .surface-card--soft,
+:root[data-theme="dark"] .project-note-card,
+:root[data-theme="dark"] .project-editor-card {
+  background: color-mix(in srgb, var(--surface-alt) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+:root[data-theme="dark"] .auth-highlight {
+  background:
+    radial-gradient(circle at top left, rgba(114, 167, 255, 0.2), transparent 28%),
+    linear-gradient(165deg, rgba(8, 17, 31, 0.98), rgba(18, 39, 78, 0.94));
+}
+
+:root[data-theme="dark"] .dashboard-sidebar__inner {
+  scrollbar-color: rgba(114, 167, 255, 0.42) transparent;
+}
+
+:root[data-theme="dark"] .dashboard-profile-card__avatar {
+  box-shadow: 0 18px 32px rgba(3, 9, 23, 0.34);
+}
+
+:root[data-theme="dark"] .dashboard-signout {
+  color: #ff8b8b;
+}
+
+:root[data-theme="dark"] .dashboard-signout:hover {
+  color: #ffb2b2;
+}
+
+:root[data-theme="dark"] .audience-card--dark {
+  background: linear-gradient(180deg, rgba(8, 17, 31, 0.98), rgba(13, 34, 66, 0.96));
+}
+
+:root[data-theme="dark"] .site-nav__link:hover,
+:root[data-theme="dark"] .dashboard-nav__link:hover,
+:root[data-theme="dark"] .user-chip:hover {
+  color: var(--text-strong);
+}
+
+:root[data-theme="dark"] .form-control::placeholder,
+:root[data-theme="dark"] .form-select,
+:root[data-theme="dark"] .form-text,
+:root[data-theme="dark"] .page-subtitle,
+:root[data-theme="dark"] .metric-note,
+:root[data-theme="dark"] .footer-copy,
+:root[data-theme="dark"] .footer-bottom,
+:root[data-theme="dark"] .dashboard-panel__support,
+:root[data-theme="dark"] .dashboard-panel__header p,
+:root[data-theme="dark"] .dashboard-profile-card p {
+  color: var(--text-soft) !important;
+}
+
+:root[data-theme="dark"] .alert-info {
+  color: #b7daff;
+  background: rgba(16, 43, 84, 0.92);
+  border-color: rgba(88, 131, 199, 0.45);
+}
+
+:root[data-theme="dark"] .alert-success {
+  color: #bdf3dd;
+  background: rgba(12, 55, 42, 0.92);
+  border-color: rgba(62, 176, 128, 0.45);
+}
+
+:root[data-theme="dark"] .alert-warning {
+  color: #ffe2a7;
+  background: rgba(69, 48, 17, 0.92);
+  border-color: rgba(212, 164, 76, 0.45);
+}
+
+:root[data-theme="dark"] .alert-danger {
+  color: #ffc2c2;
+  background: rgba(68, 23, 27, 0.92);
+  border-color: rgba(231, 111, 111, 0.45);
+}
+
+:root[data-theme="dark"] .Toastify__toast-theme--light {
+  background: rgba(12, 20, 36, 0.96);
+  color: var(--text-strong);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  box-shadow: 0 20px 48px rgba(2, 8, 23, 0.42);
+}
+
+:root[data-theme="dark"] .Toastify__close-button {
+  color: var(--text-soft);
 }
 
 .loading-state {

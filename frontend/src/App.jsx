@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import LoginPage from "./pages/auth/LoginPage";
@@ -35,6 +36,7 @@ import AdminUserProfilePage from "./pages/admin/AdminUserProfilePage";
 import ChangePasswordPage from "./pages/auth/ChangePasswordPage";
 import ClientBidsPage from "./pages/bids/ClientBidsPage";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import { applyTheme, getPreferredTheme, persistTheme, THEMES } from "./utils/theme";
 
 const DASHBOARD_PATTERNS = [
     /^\/change-password$/,
@@ -53,11 +55,23 @@ const DASHBOARD_PATTERNS = [
 
 function AppFrame() {
     const location = useLocation();
+    const [theme, setTheme] = useState(getPreferredTheme);
     const isDashboardPath = DASHBOARD_PATTERNS.some((pattern) => pattern.test(location.pathname));
+
+    useEffect(() => {
+        applyTheme(theme);
+        persistTheme(theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme((currentTheme) =>
+            currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK
+        );
+    };
 
     return (
         <>
-            <Header />
+            <Header theme={theme} onToggleTheme={toggleTheme} />
             <ToastContainer
                 position="top-right"
                 autoClose={6500}
