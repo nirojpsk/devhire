@@ -1,5 +1,6 @@
 import { Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { FaCalendarDay, FaClipboardCheck, FaRocket } from 'react-icons/fa6';
 import { useGetMyBidsQuery } from '../../api/bidApiSlice';
 import Button from '../../components/ui/Button';
 import BidStatusBadge from '../../components/bids/BidStatusBadge';
@@ -18,46 +19,69 @@ function AcceptedProjectsPage() {
     ).length;
 
     return (
-        <div>
-            <section className="page-intro">
-                <div className="page-intro__copy">
+        <div className="dashboard-screen">
+            <section className="dashboard-hero">
+                <div>
                     <span className="eyebrow">Delivery queue</span>
-                    <h1 className="page-title page-title--compact">Accepted Projects</h1>
-                    <p className="page-subtitle">
-                        Track accepted work in a wider, calmer layout with room for submission history, client feedback, and next actions.
+                    <h1 className="dashboard-hero__title">Accepted Projects</h1>
+                    <p className="dashboard-hero__subtitle">
+                        Track accepted work in a calmer layout with room for submission history, client feedback, and next actions.
                     </p>
                 </div>
-                <div className="page-actions">
+                <div className="dashboard-hero__actions">
                     <Button as={Link} to="/developer/dashboard" tone="light">
                         Back to Dashboard
                     </Button>
                 </div>
             </section>
 
-            <section className="metric-grid">
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Accepted Projects</div>
-                    <div className="stats-card__value">{acceptedProjectBids.length}</div>
-                    <p className="metric-note">Projects you are currently responsible for delivering</p>
+            <section className="dashboard-metrics dashboard-metrics--developer">
+                <article className="dashboard-panel dashboard-stat dashboard-stat--wide">
+                    <div className="dashboard-stat__eyebrow">Accepted Projects</div>
+                    <div className="dashboard-stat__value">{acceptedProjectBids.length}</div>
+                    <div className="dashboard-progress-row">
+                        <div>
+                            <span className="dashboard-progress-row__label">Submitted ({submittedCount})</span>
+                            <div className="dashboard-progress"><span style={{ width: `${acceptedProjectBids.length ? (submittedCount / acceptedProjectBids.length) * 100 : 0}%` }} /></div>
+                        </div>
+                        <div>
+                            <span className="dashboard-progress-row__label">Awaiting Decision ({pendingClientDecisionCount})</span>
+                            <div className="dashboard-progress dashboard-progress--green"><span style={{ width: `${acceptedProjectBids.length ? (pendingClientDecisionCount / acceptedProjectBids.length) * 100 : 0}%` }} /></div>
+                        </div>
+                    </div>
                 </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Submitted</div>
-                    <div className="stats-card__value">{submittedCount}</div>
-                    <p className="metric-note">Work already sent back to the client</p>
+                <article className="dashboard-panel dashboard-stat">
+                    <div className="dashboard-stat__eyebrow">Submitted</div>
+                    <div className="dashboard-stat__value">{submittedCount}</div>
+                    <p className="dashboard-stat__note">
+                        <FaClipboardCheck /> Delivery sent
+                    </p>
                 </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Awaiting Decision</div>
-                    <div className="stats-card__value">{pendingClientDecisionCount}</div>
-                    <p className="metric-note">Submitted projects still waiting for client review</p>
+                <article className="dashboard-panel dashboard-stat">
+                    <div className="dashboard-stat__eyebrow">Awaiting Decision</div>
+                    <div className="dashboard-stat__value">{pendingClientDecisionCount}</div>
+                    <p className="dashboard-stat__note">
+                        <FaCalendarDay /> Client response pending
+                    </p>
                 </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Ready to Submit</div>
-                    <div className="stats-card__value">{acceptedProjectBids.length - submittedCount}</div>
-                    <p className="metric-note">Accepted projects with no submission yet</p>
+                <article className="dashboard-panel dashboard-stat dashboard-stat--accent">
+                    <div className="dashboard-stat__eyebrow">Ready to Submit</div>
+                    <div className="dashboard-stat__value">{acceptedProjectBids.length - submittedCount}</div>
+                    <p className="dashboard-stat__note">
+                        <FaRocket /> Delivery work in motion
+                    </p>
                 </article>
             </section>
 
-            <section className="dashboard-section">
+            <section className="dashboard-grid-layout">
+                <article className="dashboard-panel dashboard-panel--main">
+                    <div className="dashboard-panel__header">
+                        <div>
+                            <h2>Accepted Work Queue</h2>
+                            <p>Everything you are currently responsible for delivering.</p>
+                        </div>
+                    </div>
+
                 {isLoading ? (
                     <div className="loading-state">
                         <Spinner animation="border" />
@@ -69,24 +93,20 @@ function AcceptedProjectsPage() {
                 ) : acceptedProjectBids.length === 0 ? (
                     <div className="empty-state">No accepted projects yet.</div>
                 ) : (
-                    <div className="dashboard-stack">
+                    <div className="dashboard-activity-list">
                         {acceptedProjectBids.map((bid) => (
-                            <article key={bid._id} className="dashboard-card dashboard-list-card interactive-card">
-                                <div className="dashboard-list-card__main">
-                                    <div className="page-actions">
+                            <article key={bid._id} className="dashboard-activity-item">
+                                <div className="dashboard-activity-item__main">
+                                    <div className="dashboard-activity-item__title-row">
+                                        <h3>{bid.projectId?.title || 'Project'}</h3>
                                         <BidStatusBadge status="accepted" />
-                                        <span className="app-chip">
-                                            {bid.projectId?.skillsRequired?.[0] || "Delivery"}
-                                        </span>
                                     </div>
 
-                                    <h2 className="dashboard-list-card__title">{bid.projectId?.title || 'Project'}</h2>
-
-                                    <div className="meta-row">
-                                        <span><strong>Your Bid:</strong> ${bid.bidAmount}</span>
-                                        <span><strong>Delivery Time:</strong> {bid.deliveryTime} days</span>
-                                        <span><strong>Project Budget:</strong> ${bid.projectId?.budget?.min} - ${bid.projectId?.budget?.max}</span>
-                                        <span><strong>Deadline:</strong> {bid.projectId?.deadline ? new Date(bid.projectId.deadline).toLocaleDateString() : 'N/A'}</span>
+                                    <div className="dashboard-activity-item__meta">
+                                        <span>Your Bid: ${bid.bidAmount}</span>
+                                        <span>Delivery: {bid.deliveryTime} days</span>
+                                        <span>Budget: ${bid.projectId?.budget?.min} - ${bid.projectId?.budget?.max}</span>
+                                        <span>Deadline: {bid.projectId?.deadline ? new Date(bid.projectId.deadline).toLocaleDateString() : 'N/A'}</span>
                                     </div>
 
                                     {bid.projectId?.submission?.submittedAt ? (
@@ -132,7 +152,7 @@ function AcceptedProjectsPage() {
                                     ) : null}
                                 </div>
 
-                                <div className="dashboard-list-card__aside">
+                                <div className="dashboard-activity-item__actions">
                                     {!bid.projectId?.submission?.submittedAt ? (
                                         <Button
                                             as={Link}
@@ -156,15 +176,33 @@ function AcceptedProjectsPage() {
                                     <Button
                                         as={Link}
                                         to={`/projects/${bid.projectId?._id}`}
-                                        tone='light'
-                                    >
-                                        View Project
+                                            tone='light'
+                                        >
+                                            View Project
                                     </Button>
                                 </div>
                             </article>
                         ))}
                     </div>
                 )}
+
+                </article>
+
+                <div className="dashboard-side-column">
+                    <article className="dashboard-panel dashboard-panel--dark">
+                        <div className="dashboard-panel__header">
+                            <div>
+                                <h2>Delivery Notes</h2>
+                                <p>Keep accepted work moving steadily through review.</p>
+                            </div>
+                        </div>
+                        <ul className="dashboard-mini-list">
+                            <li>{acceptedProjectBids.length} projects are currently in your queue</li>
+                            <li>{submittedCount} have already been submitted to clients</li>
+                            <li>{acceptedProjectBids.length - submittedCount} are still ready for first delivery</li>
+                        </ul>
+                    </article>
+                </div>
             </section>
         </div>
     );

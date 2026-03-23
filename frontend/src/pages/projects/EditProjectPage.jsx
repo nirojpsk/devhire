@@ -1,9 +1,11 @@
-import { Container, Button, Form, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert } from 'react-bootstrap';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useGetProjectByIdQuery, useUpdateProjectMutation } from '../../api/projectApiSlice';
 import getErrorMessage from '../../utils/getErrorMessage';
+import Button from '../../components/ui/Button';
+import ProjectForm from '../../components/projects/ProjectForm';
 
 const isFutureDate = (dateValue) => {
     const selectedDate = new Date(dateValue);
@@ -80,75 +82,21 @@ function EditProjectForm({ project, projectId, loadingUpdate, updateProject, nav
     };
 
     return (
-        <Form onSubmit={submitHandler}>
-            <Form.Group controlId='title' className='my-3'>
-                <Form.Label>Project Title</Form.Label>
-                <Form.Control
-                    type='text'
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder='Enter project title'
-                />
-            </Form.Group>
-
-            <Form.Group controlId='description' className='my-3'>
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                    as='textarea'
-                    rows={5}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder='Describe your project'
-                />
-            </Form.Group>
-
-            <Form.Group controlId='budgetMin' className='my-3'>
-                <Form.Label>Minimum Budget</Form.Label>
-                <Form.Control
-                    type='number'
-                    value={budgetMin}
-                    onChange={(e) => setBudgetMin(e.target.value)}
-                    placeholder='Enter minimum budget'
-                />
-            </Form.Group>
-
-            <Form.Group controlId='budgetMax' className='my-3'>
-                <Form.Label>Maximum Budget</Form.Label>
-                <Form.Control
-                    type='number'
-                    value={budgetMax}
-                    onChange={(e) => setBudgetMax(e.target.value)}
-                    placeholder='Enter maximum budget'
-                />
-            </Form.Group>
-
-            <Form.Group controlId='skillsRequired' className='my-3'>
-                <Form.Label>Skills Required</Form.Label>
-                <Form.Control
-                    type='text'
-                    value={skillsRequired}
-                    onChange={(e) => setSkillsRequired(e.target.value)}
-                    placeholder='Example: React, Node.js, MongoDB'
-                />
-                <Form.Text muted>
-                    Enter skills separated by commas.
-                </Form.Text>
-            </Form.Group>
-
-            <Form.Group controlId='deadline' className='my-3'>
-                <Form.Label>Deadline</Form.Label>
-                <Form.Control
-                    type='date'
-                    value={deadline}
-                    min={getTomorrowDateString()}
-                    onChange={(e) => setDeadline(e.target.value)}
-                />
-            </Form.Group>
-
-            <Button type='submit' className='btn btn-sm' disabled={loadingUpdate}>
-                {loadingUpdate ? 'Updating...' : 'Update Project'}
-            </Button>
-        </Form>
+        <ProjectForm
+            values={{ title, description, budgetMin, budgetMax, skillsRequired, deadline }}
+            onFieldChange={(field, value) => {
+                if (field === 'title') setTitle(value);
+                if (field === 'description') setDescription(value);
+                if (field === 'budgetMin') setBudgetMin(value);
+                if (field === 'budgetMax') setBudgetMax(value);
+                if (field === 'skillsRequired') setSkillsRequired(value);
+                if (field === 'deadline') setDeadline(value);
+            }}
+            onSubmit={submitHandler}
+            isLoading={loadingUpdate}
+            submitLabel='Update Project'
+            minDate={getTomorrowDateString()}
+        />
     );
 }
 
@@ -161,34 +109,70 @@ function EditProjectPage() {
     const project = data?.project;
 
     return (
-        <Container className='py-2' style={{ maxWidth: '700px' }}>
-            <div className='d-flex justify-content-between align-items-center mb-4'>
-                <h2 className='mb-0'>Edit Project</h2>
-                <Button as={Link} to='/my-projects' variant='outline-secondary' size='sm'>
-                    Back to My Projects
-                </Button>
-            </div>
+        <div className="public-page">
+            <Container>
+                <section className="project-editor-layout">
+                    <div className="project-editor-main">
+                        <section className="page-intro">
+                            <div className="page-intro__copy">
+                                <span className="eyebrow">Client workflow</span>
+                                <h1 className="page-title page-title--compact">Edit Project</h1>
+                                <p className="page-subtitle">
+                                    Update the brief without losing your current structure, validation, or marketplace visibility.
+                                </p>
+                            </div>
+                            <div className="page-actions">
+                                <Button as={Link} to="/my-projects" tone="light">
+                                    Back to My Projects
+                                </Button>
+                            </div>
+                        </section>
 
-            {isLoading ? (
-                <div className='text-center'>
-                    <Spinner animation='border' />
-                </div>
-            ) : error ? (
-                <Alert variant='danger'>{error?.data?.message || error?.error || 'Error fetching project'}</Alert>
-            ) : !project ? (
-                <Alert variant='info'>Project not found.</Alert>
-            ) : (
-                <EditProjectForm
-                    key={project._id}
-                    project={project}
-                    projectId={projectId}
-                    loadingUpdate={loadingUpdate}
-                    updateProject={updateProject}
-                    navigate={navigate}
-                />
-            )}
-        </Container>
+                        {isLoading ? (
+                            <div className="loading-state">
+                                <Spinner animation='border' />
+                            </div>
+                        ) : error ? (
+                            <Alert variant='danger'>{error?.data?.message || error?.error || 'Error fetching project'}</Alert>
+                        ) : !project ? (
+                            <div className="empty-state">Project not found.</div>
+                        ) : (
+                            <article className="detail-card project-editor-card">
+                                <EditProjectForm
+                                    key={project._id}
+                                    project={project}
+                                    projectId={projectId}
+                                    loadingUpdate={loadingUpdate}
+                                    updateProject={updateProject}
+                                    navigate={navigate}
+                                />
+                            </article>
+                        )}
+                    </div>
 
+                    <aside className="project-editor-side">
+                        <article className="surface-card project-note-card">
+                            <span className="eyebrow">Editing guidance</span>
+                            <h2 className="section-title mt-3">Keep updates developer-friendly</h2>
+                            <ul className="project-step-list">
+                                <li>Only expand scope if the budget and deadline still match the work.</li>
+                                <li>Update the skills list if the required stack has changed materially.</li>
+                                <li>Clarify any delivery expectations before new bids or edits come in.</li>
+                            </ul>
+                        </article>
+
+                        {project ? (
+                            <article className="surface-card surface-card--soft project-note-card">
+                                <span className="eyebrow">Current status</span>
+                                <p className="page-subtitle mt-3 mb-0">
+                                    This project is currently marked as <strong>{project.status}</strong>. Changes here update what developers and your workspace see.
+                                </p>
+                            </article>
+                        ) : null}
+                    </aside>
+                </section>
+            </Container>
+        </div>
     );
 }
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { FaClipboardCheck, FaFolderOpen, FaHandshake, FaHourglassHalf } from "react-icons/fa6";
 import { useGetClientProfileQuery } from "../../api/clientApiSlice";
 import { useGetMyProjectsQuery, useGetSubmittedProjectsQuery } from "../../api/projectApiSlice";
 import { useGetClientBidsQuery } from "../../api/bidApiSlice";
@@ -20,143 +21,159 @@ function ClientDashboard() {
 
     const openProjects = projects.filter((project) => project.status === "open").length;
     const activeProjects = projects.filter((project) => project.status === "in-progress").length;
-    const recentProjects = projects.slice(0, 3);
+    const pendingBids = bids.filter((bid) => bid.status === "pending").length;
+    const recentProjects = projects.slice(0, 4);
+    const completionScore = profile ? 100 : 35;
 
     return (
-        <div>
-            <section className="page-intro">
-                <div className="page-intro__copy">
+        <div className="dashboard-screen">
+            <section className="dashboard-hero">
+                <div>
                     <span className="eyebrow">Client workspace</span>
-                    <h1 className="page-title page-title--compact">Client Dashboard</h1>
-                    <p className="page-subtitle">
-                        Welcome back, {userInfo?.name}. Review your projects, compare incoming bids, and keep delivery moving.
+                    <h1 className="dashboard-hero__title">Client Dashboard</h1>
+                    <p className="dashboard-hero__subtitle">
+                        Welcome back, {userInfo?.name}. Review active projects, compare incoming bids, and keep delivery moving with a clearer command center.
                     </p>
                 </div>
-                <div className="page-actions">
+                <div className="dashboard-hero__actions">
+                    <Button as={Link} to="/my-projects" tone="light">
+                        View Projects
+                    </Button>
                     <Button as={Link} to="/projects/create">
                         Post Project
                     </Button>
-                    <Button as={Link} to="/my-projects" tone="light">
-                        View All Projects
-                    </Button>
                 </div>
             </section>
 
-            <section className="metric-grid">
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Projects Posted</div>
-                    <div className="stats-card__value">{projects.length}</div>
-                    <p className="metric-note">
-                        <strong>{openProjects}</strong> currently open for bids
+            <section className="dashboard-metrics dashboard-metrics--developer">
+                <article className="dashboard-panel dashboard-stat dashboard-stat--wide">
+                    <div className="dashboard-stat__eyebrow">Projects Posted</div>
+                    <div className="dashboard-stat__value">{projects.length}</div>
+                    <div className="dashboard-progress-row">
+                        <div>
+                            <span className="dashboard-progress-row__label">Open ({openProjects})</span>
+                            <div className="dashboard-progress"><span style={{ width: `${projects.length ? (openProjects / projects.length) * 100 : 0}%` }} /></div>
+                        </div>
+                        <div>
+                            <span className="dashboard-progress-row__label">In Progress ({activeProjects})</span>
+                            <div className="dashboard-progress dashboard-progress--green"><span style={{ width: `${projects.length ? (activeProjects / projects.length) * 100 : 0}%` }} /></div>
+                        </div>
+                    </div>
+                </article>
+                <article className="dashboard-panel dashboard-stat">
+                    <div className="dashboard-stat__eyebrow">Bids Received</div>
+                    <div className="dashboard-stat__value">{bids.length}</div>
+                    <p className="dashboard-stat__note">
+                        <FaHandshake /> Across all projects
                     </p>
                 </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Active Delivery</div>
-                    <div className="stats-card__value">{activeProjects}</div>
-                    <p className="metric-note">Projects already paired with a developer</p>
+                <article className="dashboard-panel dashboard-stat">
+                    <div className="dashboard-stat__eyebrow">Pending Review</div>
+                    <div className="dashboard-stat__value">{submittedProjects.length}</div>
+                    <p className="dashboard-stat__note">
+                        <FaClipboardCheck /> Submitted work waiting
+                    </p>
                 </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Bids Received</div>
-                    <div className="stats-card__value">{bids.length}</div>
-                    <p className="metric-note">Across all of your current projects</p>
-                </article>
-                <article className="stats-card interactive-card">
-                    <div className="stats-card__label">Pending Review</div>
-                    <div className="stats-card__value">{submittedProjects.length}</div>
-                    <p className="metric-note">Submitted work waiting for your decision</p>
+                <article className="dashboard-panel dashboard-stat dashboard-stat--accent">
+                    <div className="dashboard-stat__eyebrow">Bid Review Flow</div>
+                    <div className="dashboard-stat__value">{pendingBids}</div>
+                    <p className="dashboard-stat__note">
+                        <FaHourglassHalf /> Decisions still pending
+                    </p>
                 </article>
             </section>
 
-            <section className="dashboard-section">
-                <div className="section-header">
-                    <h2 className="section-title">Ongoing engagements</h2>
-                    <Link to="/my-projects" className="section-link">
-                        View all projects
-                    </Link>
-                </div>
-
-                {recentProjects.length > 0 ? (
-                    <div className="dashboard-stack">
-                        {recentProjects.map((project) => (
-                            <article key={project._id} className="dashboard-card dashboard-list-card interactive-card">
-                                <div className="dashboard-list-card__main">
-                                    <div className="page-actions">
-                                        <ProjectStatusBadge status={project.status} />
-                                        <span className="app-chip">
-                                            {project.skillsRequired?.[0] || "Project"}
-                                        </span>
-                                    </div>
-                                    <h3 className="dashboard-list-card__title">{project.title}</h3>
-                                    <p>
-                                        {project.description?.length > 160
-                                            ? `${project.description.slice(0, 160)}...`
-                                            : project.description}
-                                    </p>
-                                    <div className="meta-row">
-                                        <span><strong>Budget:</strong> ${project.budget?.min} - ${project.budget?.max}</span>
-                                        <span><strong>Skills:</strong> {project.skillsRequired?.slice(0, 3).join(", ") || "N/A"}</span>
-                                        <span><strong>Developer:</strong> {project.selectedDeveloper?.name || "Not selected yet"}</span>
-                                    </div>
-                                </div>
-                                <div className="dashboard-list-card__aside">
-                                    <Button as={Link} to={`/projects/${project._id}`}>
-                                        View Project
-                                    </Button>
-                                    <Button as={Link} to={`/projects/${project._id}/bids`} tone="light">
-                                        Review Bids
-                                    </Button>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="empty-state">
-                        You have not posted any projects yet. Create your first project to start receiving proposals.
-                    </div>
-                )}
-            </section>
-
-            <section className="dashboard-section">
-                <div className="feature-grid">
-                    <article className="dashboard-card">
-                        <div className="stats-card__label">Profile status</div>
-                        <div className="stats-card__value">{profile ? "Ready" : "Incomplete"}</div>
-                        <p className="mt-3">
-                            {profile
-                                ? `${profile.companyName || "Your company"} is ready to hire from DevHire.`
-                                : "Create your client profile to help developers understand who they will work with."}
-                        </p>
-                        <div className="page-actions mt-3">
-                            <Button as={Link} to={profile ? "/client/profile" : "/client/profile/create"} tone="light">
-                                {profile ? "View Profile" : "Create Profile"}
-                            </Button>
+            <section className="dashboard-grid-layout">
+                <article className="dashboard-panel dashboard-panel--main">
+                    <div className="dashboard-panel__header">
+                        <div>
+                            <h2>Ongoing Engagements</h2>
+                            <p>Projects you are currently funding, reviewing, or moving toward delivery.</p>
                         </div>
+                        <Link to="/my-projects" className="section-link">
+                            View all projects
+                        </Link>
+                    </div>
+
+                    {recentProjects.length > 0 ? (
+                        <div className="dashboard-activity-list">
+                            {recentProjects.map((project) => (
+                                <article key={project._id} className="dashboard-activity-item">
+                                    <div className="dashboard-activity-item__main">
+                                        <div className="dashboard-activity-item__title-row">
+                                            <h3>{project.title}</h3>
+                                            <ProjectStatusBadge status={project.status} />
+                                        </div>
+                                        <p>
+                                            {project.description?.length > 125
+                                                ? `${project.description.slice(0, 125)}...`
+                                                : project.description}
+                                        </p>
+                                        <div className="dashboard-activity-item__meta">
+                                            <span><FaFolderOpen /> {project.skillsRequired?.slice(0, 2).join(", ") || "Project"}</span>
+                                            <span>Budget: ${project.budget?.min} - ${project.budget?.max}</span>
+                                            <span>Developer: {project.selectedDeveloper?.name || "Not selected"}</span>
+                                        </div>
+                                    </div>
+                                    <div className="dashboard-activity-item__actions">
+                                        <Button as={Link} to={`/projects/${project._id}`} tone="light">
+                                            View
+                                        </Button>
+                                        <Button as={Link} to={`/projects/${project._id}/bids`}>
+                                            Review Bids
+                                        </Button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="empty-state">
+                            You have not posted any projects yet. Create your first project to start receiving proposals.
+                        </div>
+                    )}
+                </article>
+
+                <div className="dashboard-side-column">
+                    <article className="dashboard-panel">
+                        <div className="dashboard-panel__header">
+                            <div>
+                                <h2>Workspace Readiness</h2>
+                                <p>Make it easier for developers to trust your project briefs.</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-health">
+                            <div className="dashboard-health__meter">
+                                <span>Profile completion</span>
+                                <strong>{completionScore}%</strong>
+                            </div>
+                            <div className="dashboard-progress dashboard-progress--green">
+                                <span style={{ width: `${completionScore}%` }} />
+                            </div>
+                            <ul className="dashboard-mini-list">
+                                <li>{profile ? `${profile.companyName || "Company profile"} is live` : "Client profile still needs setup"}</li>
+                                <li>{pendingBids} proposals awaiting your review</li>
+                                <li>{submittedProjects.length} submissions waiting on decisions</li>
+                            </ul>
+                        </div>
+                        <Button as={Link} to={profile ? "/client/profile" : "/client/profile/create"}>
+                            {profile ? "Open Profile" : "Create Profile"}
+                        </Button>
                     </article>
 
-                    <article className="dashboard-card">
-                        <div className="stats-card__label">Bid review flow</div>
-                        <div className="stats-card__value">{bids.filter((bid) => bid.status === "pending").length}</div>
-                        <p className="mt-3">
-                            Pending proposals still waiting for your decision across all projects.
-                        </p>
-                        <div className="page-actions mt-3">
-                            <Button as={Link} to="/client/bids" tone="light">
-                                Open All Bids
-                            </Button>
+                    <article className="dashboard-panel dashboard-panel--dark">
+                        <div className="dashboard-panel__header">
+                            <div>
+                                <h2>Submission Queue</h2>
+                                <p>Projects already delivered and ready for your approval cycle.</p>
+                            </div>
                         </div>
-                    </article>
-
-                    <article className="dashboard-card">
-                        <div className="stats-card__label">Submission queue</div>
-                        <div className="stats-card__value">{submittedProjects.length}</div>
-                        <p className="mt-3">
-                            Review submitted work, approve completion, or request another delivery pass.
+                        <div className="dashboard-side-stat">{submittedProjects.length}</div>
+                        <p className="dashboard-panel__support">
+                            Review completed work, approve completion, or request one more pass.
                         </p>
-                        <div className="page-actions mt-3">
-                            <Button as={Link} to="/client/submitted-projects" tone="light">
-                                Review Submissions
-                            </Button>
-                        </div>
+                        <Button as={Link} to="/client/submitted-projects" tone="light">
+                            Review Submissions
+                        </Button>
                     </article>
                 </div>
             </section>

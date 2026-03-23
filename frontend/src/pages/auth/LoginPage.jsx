@@ -79,6 +79,23 @@ function LoginPage() {
                                 </p>
                             </div>
 
+                            <div className="auth-signal-row">
+                                <div className="auth-signal">
+                                    <strong>Project flow</strong>
+                                    <span>From posted briefs to reviewed submissions</span>
+                                </div>
+                                <div className="auth-signal">
+                                    <strong>Role-aware access</strong>
+                                    <span>Each account lands in the right workspace immediately</span>
+                                </div>
+                            </div>
+
+                            <ul className="auth-checklist">
+                                <li>Review active proposals without switching tools.</li>
+                                <li>Keep client, developer, and admin workspaces visually aligned.</li>
+                                <li>Return to the exact workflow you left off with.</li>
+                            </ul>
+
                             <div className="auth-highlight__footer">
                                 <div className="auth-mini-card">
                                     <FaProjectDiagram className="mb-3" />
@@ -94,7 +111,7 @@ function LoginPage() {
                         </div>
 
                         <div className="auth-form-panel">
-                            <div className="page-intro__copy mb-4">
+                            <div className="auth-form-panel__header">
                                 <span className="eyebrow">Account access</span>
                                 <h2 className="section-title">Sign In</h2>
                                 <p className="page-subtitle">

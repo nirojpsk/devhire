@@ -113,6 +113,23 @@ function RegisterPage() {
                                 </p>
                             </div>
 
+                            <div className="auth-signal-row">
+                                <div className="auth-signal">
+                                    <strong>Client mode</strong>
+                                    <span>Post, review, hire, and track delivery clearly</span>
+                                </div>
+                                <div className="auth-signal">
+                                    <strong>Developer mode</strong>
+                                    <span>Bid, deliver, and build a stronger public profile</span>
+                                </div>
+                            </div>
+
+                            <ul className="auth-checklist">
+                                <li>Create a role-specific workspace without changing the core platform.</li>
+                                <li>Keep location, skills, and account details organized from the start.</li>
+                                <li>Use the same product language across public pages and dashboards.</li>
+                            </ul>
+
                             <div className="auth-highlight__footer">
                                 <div className="auth-mini-card">
                                     <FaBriefcase className="mb-3" />
@@ -128,7 +145,7 @@ function RegisterPage() {
                         </div>
 
                         <div className="auth-form-panel">
-                            <div className="page-intro__copy mb-4">
+                            <div className="auth-form-panel__header">
                                 <span className="eyebrow">Account setup</span>
                                 <h2 className="section-title">Create Account</h2>
                                 <p className="page-subtitle">

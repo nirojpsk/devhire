@@ -37,18 +37,33 @@ function ProjectListPage() {
     return (
         <div className="public-page">
             <Container>
-                <section className="page-intro">
-                    <div className="page-intro__copy">
+                <section className="market-hero">
+                    <div className="market-hero__copy">
                         <span className="eyebrow">Marketplace</span>
                         <h1 className="page-title page-title--compact">Discover software projects</h1>
                         <p className="page-subtitle">
                             Browse current opportunities, compare requirements, and move quickly from interest to proposal.
                         </p>
+                        <div className="page-actions">
+                            <Button as={Link} to={backLink} tone="light">
+                                {backLabel}
+                            </Button>
+                        </div>
                     </div>
-                    <div className="page-actions">
-                        <Button as={Link} to={backLink} tone="light">
-                            {backLabel}
-                        </Button>
+
+                    <div className="market-hero__stats">
+                        <article className="market-hero__stat">
+                            <span>Open opportunities</span>
+                            <strong>{openCount}</strong>
+                        </article>
+                        <article className="market-hero__stat">
+                            <span>In delivery</span>
+                            <strong>{activeCount}</strong>
+                        </article>
+                        <article className="market-hero__stat">
+                            <span>Top skill</span>
+                            <strong>{popularSkills[0]?.[0] || "TBD"}</strong>
+                        </article>
                     </div>
                 </section>
 
@@ -70,9 +85,9 @@ function ProjectListPage() {
                             <div className="surface-card market-sidebar__sticky">
                                 <div className="stacked-info">
                                     <span className="eyebrow">Marketplace snapshot</span>
-                                    <h2 className="section-title">A clearer way to browse</h2>
+                                    <h2 className="section-title">A cleaner way to browse</h2>
                                     <p>
-                                        This page keeps the current project data intact while presenting it in a more professional marketplace layout.
+                                        Scan the market from one sidebar, then move deeper only when a project looks promising.
                                     </p>
                                 </div>
 
@@ -88,7 +103,7 @@ function ProjectListPage() {
                                         {popularSkills.length > 0 ? (
                                             popularSkills.map(([skill, count]) => (
                                                 <span key={skill} className="app-chip">
-                                                    {skill} · {count}
+                                                    {skill} - {count}
                                                 </span>
                                             ))
                                         ) : (
@@ -107,7 +122,7 @@ function ProjectListPage() {
                                         <div className="stats-card__value">{projects.length}</div>
                                     </div>
                                     <p className="page-subtitle">
-                                        Each card below keeps the same route behavior and project data you already had.
+                                        Each card below keeps the same route behavior while adopting the cleaner marketplace layout.
                                     </p>
                                 </div>
                             </div>

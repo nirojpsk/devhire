@@ -39,6 +39,8 @@ function HomePage() {
 
     const projects = data?.projects ?? [];
     const featuredProjects = projects.slice(0, 3);
+    const openProjects = projects.filter((project) => project.status === "open").length;
+    const activeProjects = projects.filter((project) => project.status === "in-progress").length;
     const dashboardLink = userInfo?.role === "client"
         ? "/client/dashboard"
         : userInfo?.role === "developer"
@@ -46,6 +48,12 @@ function HomePage() {
             : userInfo?.role === "admin"
                 ? "/admin/dashboard"
                 : "/register";
+
+    const heroStats = [
+        { label: "Live opportunities", value: openProjects || projects.length || 0 },
+        { label: "Projects in delivery", value: activeProjects || 0 },
+        { label: "Roles supported", value: 3 },
+    ];
 
     return (
         <div className="public-page">
@@ -76,18 +84,52 @@ function HomePage() {
                                 <span>Clients can post, review, hire, and track delivery.</span>
                                 <span>Developers can build profiles, bid, and grow reputation.</span>
                             </div>
+
+                            <div className="hero-metrics">
+                                {heroStats.map((item) => (
+                                    <article key={item.label} className="hero-metric">
+                                        <span className="hero-metric__label">{item.label}</span>
+                                        <strong>{item.value}</strong>
+                                    </article>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="hero-spotlight animate-in-delay">
                             <div className="hero-spotlight__screen">
                                 <span className="hero-spotlight__chip">Live workflow snapshot</span>
 
+                                <div className="hero-spotlight__stats">
+                                    <div className="hero-spotlight__stat">
+                                        <span>Active marketplace</span>
+                                        <strong>{projects.length || 0} projects</strong>
+                                    </div>
+                                    <div className="hero-spotlight__stat">
+                                        <span>Open right now</span>
+                                        <strong>{openProjects || 0} accepting bids</strong>
+                                    </div>
+                                </div>
+
                                 <div className="hero-spotlight__card">
                                     <h3>From project brief to shipped work</h3>
                                     <p>
-                                        Stronger project detail pages, polished proposal review, and clean role-based
-                                        dashboards keep the marketplace easy to trust and easy to use.
+                                        Clear briefs, stronger detail views, and cleaner role-based workspaces keep the marketplace easy to trust and easy to use.
                                     </p>
+                                </div>
+
+                                <div className="hero-flow-list">
+                                    <div className="hero-flow-list__item">
+                                        <strong>1. Publish a serious brief</strong>
+                                        <span>Define scope, skills, budget, and deadline in one place.</span>
+                                    </div>
+                                    <div className="hero-flow-list__item">
+                                        <strong>2. Compare thoughtful proposals</strong>
+                                        <span>Review pricing, delivery time, and profile credibility quickly.</span>
+                                    </div>
+                                    <div className="hero-flow-list__item">
+                                        <strong>3. Manage delivery without losing context</strong>
+                                        <span>Move from selection to submission review inside the same product.</span>
+                                    </div>
                                 </div>
 
                                 <div className="floating-note">

@@ -48,54 +48,88 @@ function ProjectDetailPage() {
                 ) : !project ? (
                     <div className="empty-state">Project not found.</div>
                 ) : (
-                    <>
-                        <section className="project-detail-hero public-card animate-in">
-                            <div className="project-detail-hero__top">
-                                <div className="project-detail-hero__summary">
-                                    <div className="page-actions">
-                                        <ProjectStatusBadge status={project.status} />
-                                        {project.skillsRequired?.slice(0, 3).map((skill) => (
-                                            <span key={skill} className="app-chip">
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <h1 className="page-title page-title--compact">{project.title}</h1>
-                                    <p className="page-subtitle">
-                                        {project.description?.length > 220
-                                            ? `${project.description.slice(0, 220)}...`
-                                            : project.description}
-                                    </p>
+                    <div className="project-detail-shell">
+                        <section className="project-detail-banner public-card animate-in">
+                            <div className="project-detail-banner__main">
+                                <div className="page-actions">
+                                    <ProjectStatusBadge status={project.status} />
+                                    {project.skillsRequired?.slice(0, 3).map((skill) => (
+                                        <span key={skill} className="app-chip">
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                                <h1 className="page-title page-title--compact">{project.title}</h1>
+                                <p className="page-subtitle">
+                                    {project.description?.length > 240
+                                        ? `${project.description.slice(0, 240)}...`
+                                        : project.description}
+                                </p>
+
+                                <div className="project-facts-grid">
+                                    <article className="project-fact-card">
+                                        <span>Budget</span>
+                                        <strong>${project.budget?.min} - ${project.budget?.max}</strong>
+                                    </article>
+                                    <article className="project-fact-card">
+                                        <span>Deadline</span>
+                                        <strong>{project.deadline ? new Date(project.deadline).toLocaleDateString() : "N/A"}</strong>
+                                    </article>
+                                    <article className="project-fact-card">
+                                        <span>Client</span>
+                                        <strong>{project.clientId?.name || "N/A"}</strong>
+                                    </article>
+                                    <article className="project-fact-card">
+                                        <span>Selected Developer</span>
+                                        <strong>{project.selectedDeveloper?.name || "Pending"}</strong>
+                                    </article>
                                 </div>
                             </div>
 
-                            <div className="metric-grid mt-4">
-                                <article className="stats-card">
-                                    <div className="stats-card__label">Budget</div>
-                                    <div className="stats-card__value">${project.budget?.min} - ${project.budget?.max}</div>
-                                </article>
-                                <article className="stats-card">
-                                    <div className="stats-card__label">Deadline</div>
-                                    <div className="stats-card__value">
-                                        {project.deadline ? new Date(project.deadline).toLocaleDateString() : "N/A"}
+                            <aside className="project-detail-banner__aside">
+                                <article className="surface-card surface-card--soft project-action-panel">
+                                    <span className="eyebrow">Actions</span>
+                                    <div className="stacked-info">
+                                        {isDeveloper && !hasDeveloperProfile ? (
+                                            <Alert variant="warning" className="mb-0">
+                                                Please create your developer profile before placing a bid.{" "}
+                                                <Link to="/developer/profile/create">Create Profile</Link>
+                                            </Alert>
+                                        ) : null}
+
+                                        {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid ? (
+                                            <Button as={Link} to={`/projects/${project._id}/bid`}>
+                                                Place Bid
+                                            </Button>
+                                        ) : null}
+
+                                        {isDeveloper && isProjectOpen && hasDeveloperProfile && hasAlreadyPlacedBid ? (
+                                            <Alert variant="info" className="mb-0">
+                                                You have already placed the bid for this project.
+                                            </Alert>
+                                        ) : null}
+
+                                        {isClientOwner && isProjectOpen ? (
+                                            <Button as={Link} to={`/projects/${project._id}/edit`} tone="light">
+                                                Edit Project
+                                            </Button>
+                                        ) : null}
+
+                                        {isClientOwner ? (
+                                            <Button as={Link} to={`/projects/${project._id}/bids`} tone="light">
+                                                View Bids
+                                            </Button>
+                                        ) : null}
                                     </div>
                                 </article>
-                                <article className="stats-card">
-                                    <div className="stats-card__label">Client</div>
-                                    <div className="stats-card__value">{project.clientId?.name || "N/A"}</div>
-                                </article>
-                                <article className="stats-card">
-                                    <div className="stats-card__label">Selected Developer</div>
-                                    <div className="stats-card__value">{project.selectedDeveloper?.name || "Pending"}</div>
-                                </article>
-                            </div>
+                            </aside>
                         </section>
 
-                        <div className="detail-layout">
-                            <div className="detail-column">
+                        <div className="project-detail-content">
+                            <div className="project-detail-stack">
                                 <article className="detail-card">
                                     <div className="detail-card__section">
-                                        <h2 className="section-title">Project description</h2>
+                                        <h2 className="section-title">Project Description</h2>
                                         <p>{project.description}</p>
                                     </div>
 
@@ -111,10 +145,12 @@ function ProjectDetailPage() {
                                                 : <span className="app-chip">No requirements listed</span>}
                                         </div>
                                     </div>
+                                </article>
 
-                                    {project.submission?.submittedAt ? (
+                                {project.submission?.submittedAt ? (
+                                    <article className="detail-card">
                                         <div className="detail-card__section">
-                                            <h3>Submission status</h3>
+                                            <h2 className="section-title">Submission Status</h2>
                                             <Alert variant="success" className="mb-0">
                                                 <strong>Project submitted:</strong>{" "}
                                                 {new Date(project.submission.submittedAt).toLocaleDateString()}
@@ -142,52 +178,14 @@ function ProjectDetailPage() {
                                                 ) : null}
                                             </Alert>
                                         </div>
-                                    ) : null}
-                                </article>
+                                    </article>
+                                ) : null}
                             </div>
 
-                            <aside className="detail-column">
+                            <aside className="project-detail-stack">
                                 <article className="detail-card">
                                     <div className="detail-card__section">
-                                        <h2 className="section-title">Actions</h2>
-                                        <div className="stacked-info">
-                                            {isDeveloper && !hasDeveloperProfile ? (
-                                                <Alert variant="warning" className="mb-0">
-                                                    Please create your developer profile before placing a bid.{" "}
-                                                    <Link to="/developer/profile/create">Create Profile</Link>
-                                                </Alert>
-                                            ) : null}
-
-                                            {isDeveloper && isProjectOpen && hasDeveloperProfile && !hasAlreadyPlacedBid ? (
-                                                <Button as={Link} to={`/projects/${project._id}/bid`}>
-                                                    Place Bid
-                                                </Button>
-                                            ) : null}
-
-                                            {isDeveloper && isProjectOpen && hasDeveloperProfile && hasAlreadyPlacedBid ? (
-                                                <Alert variant="info" className="mb-0">
-                                                    You have already placed the bid for this project.
-                                                </Alert>
-                                            ) : null}
-
-                                            {isClientOwner && isProjectOpen ? (
-                                                <Button as={Link} to={`/projects/${project._id}/edit`} tone="light">
-                                                    Edit Project
-                                                </Button>
-                                            ) : null}
-
-                                            {isClientOwner ? (
-                                                <Button as={Link} to={`/projects/${project._id}/bids`} tone="light">
-                                                    View Bids
-                                                </Button>
-                                            ) : null}
-                                        </div>
-                                    </div>
-                                </article>
-
-                                <article className="detail-card">
-                                    <div className="detail-card__section">
-                                        <h2 className="section-title">Project snapshot</h2>
+                                        <h2 className="section-title">Project Snapshot</h2>
                                         <div className="detail-list">
                                             <div className="detail-list__item">
                                                 <span>Client Email</span>
@@ -203,9 +201,15 @@ function ProjectDetailPage() {
                                             </div>
                                         </div>
                                     </div>
+                                </article>
 
-                                    {project.selectedDeveloper?._id ? (
+                                {project.selectedDeveloper?._id ? (
+                                    <article className="detail-card">
                                         <div className="detail-card__section">
+                                            <h2 className="section-title">Assigned Developer</h2>
+                                            <p>
+                                                Review the selected developer profile to confirm fit, experience, and rating context.
+                                            </p>
                                             <Button
                                                 as={Link}
                                                 to={`/developers/${project.selectedDeveloper._id}/profile`}
@@ -214,11 +218,11 @@ function ProjectDetailPage() {
                                                 View Selected Developer
                                             </Button>
                                         </div>
-                                    ) : null}
-                                </article>
+                                    </article>
+                                ) : null}
                             </aside>
                         </div>
-                    </>
+                    </div>
                 )}
             </Container>
         </div>

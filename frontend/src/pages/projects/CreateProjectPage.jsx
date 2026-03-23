@@ -1,10 +1,11 @@
-import { Form } from "react-bootstrap";
 import { useState } from "react";
+import { Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCreateProjectMutation } from "../../api/projectApiSlice";
 import getErrorMessage from "../../utils/getErrorMessage";
 import Button from "../../components/ui/Button";
+import ProjectForm from "../../components/projects/ProjectForm";
 
 const isFutureDate = (dateValue) => {
     const selectedDate = new Date(dateValue);
@@ -81,95 +82,65 @@ function CreateProjectPage() {
     };
 
     return (
-        <div>
-            <section className="page-intro">
-                <div className="page-intro__copy">
-                    <span className="eyebrow">Client workflow</span>
-                    <h1 className="page-title page-title--compact">Create Project</h1>
-                    <p className="page-subtitle">
-                        Publish a new opportunity without changing your existing validation or submit behavior.
-                    </p>
-                </div>
-                <div className="page-actions">
-                    <Button as={Link} to="/client/dashboard" tone="light">
-                        Back to Dashboard
-                    </Button>
-                </div>
-            </section>
+        <div className="public-page">
+            <Container>
+                <section className="project-editor-layout">
+                    <div className="project-editor-main">
+                        <section className="page-intro">
+                            <div className="page-intro__copy">
+                                <span className="eyebrow">Client workflow</span>
+                                <h1 className="page-title page-title--compact">Create Project</h1>
+                                <p className="page-subtitle">
+                                    Publish a new opportunity with a clearer brief, cleaner structure, and the same validation rules you already had.
+                                </p>
+                            </div>
+                            <div className="page-actions">
+                                <Button as={Link} to="/client/dashboard" tone="light">
+                                    Back to Dashboard
+                                </Button>
+                            </div>
+                        </section>
 
-            <article className="detail-card">
-                <Form onSubmit={submitHandler} className="auth-form">
-                    <Form.Group controlId="title">
-                        <Form.Label>Project Title</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter project title"
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="description">
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={6}
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Describe your project clearly"
-                        />
-                    </Form.Group>
-
-                    <div className="auth-form__grid">
-                        <Form.Group controlId="budgetMin">
-                            <Form.Label>Minimum Budget</Form.Label>
-                            <Form.Control
-                                type="number"
-                                value={budgetMin}
-                                onChange={(e) => setBudgetMin(e.target.value)}
-                                placeholder="Enter minimum budget"
+                        <article className="detail-card project-editor-card">
+                            <ProjectForm
+                                values={{ title, description, budgetMin, budgetMax, skillsRequired, deadline }}
+                                onFieldChange={(field, value) => {
+                                    if (field === "title") setTitle(value);
+                                    if (field === "description") setDescription(value);
+                                    if (field === "budgetMin") setBudgetMin(value);
+                                    if (field === "budgetMax") setBudgetMax(value);
+                                    if (field === "skillsRequired") setSkillsRequired(value);
+                                    if (field === "deadline") setDeadline(value);
+                                }}
+                                onSubmit={submitHandler}
+                                isLoading={isLoading}
+                                submitLabel="Create Project"
+                                minDate={getTomorrowDateString()}
                             />
-                        </Form.Group>
-
-                        <Form.Group controlId="budgetMax">
-                            <Form.Label>Maximum Budget</Form.Label>
-                            <Form.Control
-                                type="number"
-                                value={budgetMax}
-                                onChange={(e) => setBudgetMax(e.target.value)}
-                                placeholder="Enter maximum budget"
-                            />
-                        </Form.Group>
+                        </article>
                     </div>
 
-                    <Form.Group controlId="skillsRequired">
-                        <Form.Label>Skills Required</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={skillsRequired}
-                            onChange={(e) => setSkillsRequired(e.target.value)}
-                            placeholder="Example: React, Node.js, MongoDB"
-                        />
-                        <Form.Text>Enter skills separated by commas.</Form.Text>
-                    </Form.Group>
+                    <aside className="project-editor-side">
+                        <article className="surface-card project-note-card">
+                            <span className="eyebrow">What strong briefs include</span>
+                            <h2 className="section-title mt-3">Set the project up for better bids</h2>
+                            <ul className="project-step-list">
+                                <li>Write the scope in plain language and mention the final deliverable.</li>
+                                <li>Keep the budget realistic so serious developers self-select faster.</li>
+                                <li>List the core technologies only, not every possible tool.</li>
+                                <li>Choose a deadline that reflects review time as well as build time.</li>
+                            </ul>
+                        </article>
 
-                    <Form.Group controlId="deadline">
-                        <Form.Label>Deadline</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={deadline}
-                            min={getTomorrowDateString()}
-                            onChange={(e) => setDeadline(e.target.value)}
-                        />
-                    </Form.Group>
-
-                    <div className="form-actions">
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? "Creating..." : "Create Project"}
-                        </Button>
-                    </div>
-                </Form>
-            </article>
+                        <article className="surface-card surface-card--soft project-note-card">
+                            <span className="eyebrow">Next step</span>
+                            <p className="page-subtitle mt-3 mb-0">
+                                After publishing, developers will see the project on the marketplace and can begin sending proposals immediately.
+                            </p>
+                        </article>
+                    </aside>
+                </section>
+            </Container>
         </div>
     );
 }
