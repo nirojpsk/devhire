@@ -48,6 +48,7 @@ function ManageUsersPage() {
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Verified</th>
                             <th>Banned</th>
                             <th>Actions</th>
                         </tr>
@@ -57,6 +58,7 @@ function ManageUsersPage() {
                             <tr key={user._id}>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
+                                <td>{user.isEmailVerified === false ? "Not Verified" : "Verified"}</td>
                                 <td>{user.isBanned ? "Yes" : "No"}</td>
                                 <td className="d-flex gap-2 flex-wrap">
                                     <Button
