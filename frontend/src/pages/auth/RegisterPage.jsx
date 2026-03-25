@@ -76,7 +76,7 @@ function RegisterPage() {
         const selectedState = states.find((stateItem) => stateItem.isoCode === stateCode);
 
         try {
-            await register({
+            const res = await register({
                 name,
                 email,
                 password,
@@ -89,9 +89,20 @@ function RegisterPage() {
                 },
             }).unwrap();
 
-            toast.success("Registration successful. Please login");
-            navigate("/login");
+            if (res?.emailDeliveryFailed) {
+                toast.warn(res?.message || "Account created, but we could not send the verification email right now.");
+            } else {
+                toast.success(res?.message || "Registration successful. Please verify your email.");
+            }
+
+            navigate(`/verify-email?email=${encodeURIComponent(res?.email || email.trim())}`);
         } catch (err) {
+            if (err?.status === 409 && err?.data?.verificationRequired) {
+                toast.info(getErrorMessage(err, "This account still needs email verification."));
+                navigate(`/verify-email?email=${encodeURIComponent(err?.data?.email || email.trim())}`);
+                return;
+            }
+
             toast.error(getErrorMessage(err, "Unable to register"));
         }
     };

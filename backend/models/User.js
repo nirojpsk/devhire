@@ -32,6 +32,22 @@ const userSchema = new mongoose.Schema(
             enum: ["developer", "client", "admin"],
             required: true,
         },
+        isEmailVerified: {
+            type: Boolean,
+            default: true,
+        },
+        emailVerificationTokenHash: {
+            type: String,
+            default: null,
+        },
+        emailVerificationExpiresAt: {
+            type: Date,
+            default: null,
+        },
+        emailVerificationSentAt: {
+            type: Date,
+            default: null,
+        },
         isBanned: {
             type: Boolean,
             default: false,

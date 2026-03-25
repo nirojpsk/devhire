@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import RoleRoute from "./components/auth/RoleRoute";
 import RegisterPage from "./pages/auth/RegisterPage";
+import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ClientDashboard from "./pages/client/ClientDashboard";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -87,6 +88,7 @@ function AppFrame() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/verify-email" element={<VerifyEmailPage />} />
                     <Route path="/projects" element={<ProjectListPage />} />
                     <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
 

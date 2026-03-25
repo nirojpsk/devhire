@@ -1,8 +1,40 @@
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
-import mongoose from "mongoose";
+import {
+    buildEmailVerificationUrl,
+    createEmailVerificationToken,
+    hashEmailVerificationToken,
+} from "../utils/emailVerification.js";
+import sendVerificationEmail from "../utils/sendVerificationEmail.js";
 
 const isProduction = process.env.NODE_ENV === "production";
+const now = () => new Date();
+const isUserEmailVerified = (user) => user?.isEmailVerified !== false;
+const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const serializeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isEmailVerified: isUserEmailVerified(user),
+});
+
+const queueVerificationEmail = async (user) => {
+    const { token, tokenHash, expiresAt } = createEmailVerificationToken();
+
+    user.emailVerificationTokenHash = tokenHash;
+    user.emailVerificationExpiresAt = expiresAt;
+    user.emailVerificationSentAt = now();
+
+    await user.save();
+
+    const verifyUrl = buildEmailVerificationUrl(token);
+    return sendVerificationEmail({
+        email: user.email,
+        name: user.name,
+        verifyUrl,
+    });
+};
 
 // 1. TO REGISTER A NEW USER    
 
@@ -51,8 +83,29 @@ const registerUser = async (req, res) => {
         }
         //To check whether there is a user with the same email or not
 
-        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        const normalizedEmail = normalizeEmail(email);
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
+            if (!isUserEmailVerified(existingUser)) {
+                let emailDeliveryFailed = false;
+                let message = "This account already exists but is not verified. We sent a new verification email.";
+
+                try {
+                    await queueVerificationEmail(existingUser);
+                } catch (emailErr) {
+                    emailDeliveryFailed = true;
+                    message = "This account already exists but is not verified. We could not send a new verification email right now.";
+                    console.error("Failed to resend verification email during registration:", emailErr.message);
+                }
+
+                return res.status(409).json({
+                    message,
+                    email: existingUser.email,
+                    verificationRequired: true,
+                    emailDeliveryFailed,
+                });
+            }
+
             return res.status(400).json({
                 message: "User already exists!!!",
             });
@@ -62,25 +115,30 @@ const registerUser = async (req, res) => {
 
         const user = await User.create({
             name,
-            email: email.toLowerCase(),
+            email: normalizedEmail,
             password,
             role,
             profilePicture,
             address,
+            isEmailVerified: false,
         });
 
-        //To generate the cookies 
+        let emailDeliveryFailed = false;
+        let message = "User registered successfully. Please verify your email before logging in.";
 
-        generateToken(res, user);
+        try {
+            await queueVerificationEmail(user);
+        } catch (emailErr) {
+            emailDeliveryFailed = true;
+            message = "User registered successfully, but we could not send the verification email right now. Please request a new link.";
+            console.error("Failed to send verification email during registration:", emailErr.message);
+        }
 
         res.status(201).json({
-            message: "User Registered Successfully",
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            message,
+            email: user.email,
+            verificationRequired: true,
+            emailDeliveryFailed,
         });
 
     }
@@ -105,7 +163,7 @@ const loginUser = async (req, res) => {
         }
         //To check if the user exists or not
 
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await User.findOne({ email: normalizeEmail(email) });
         if (!user) {
             return res.status(400).json({
                 message: "Please provide valid credentials",
@@ -121,18 +179,21 @@ const loginUser = async (req, res) => {
             });
         }
 
+        if (!isUserEmailVerified(user)) {
+            return res.status(403).json({
+                message: "Please verify your email before logging in",
+                email: user.email,
+                verificationRequired: true,
+            });
+        }
+
         //In order to generate the token
 
         generateToken(res, user);
 
         res.status(200).json({
             message: "User logged in successfully",
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            user: serializeUser(user),
         });
 
     }
@@ -242,4 +303,99 @@ const changePassword = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, logoutUser, getCurrentUser, changePassword };
+//6. To Verify Email
+
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                message: "Verification token is required",
+            });
+        }
+
+        const tokenHash = hashEmailVerificationToken(token);
+        const user = await User.findOne({ emailVerificationTokenHash: tokenHash });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "This verification link is invalid or has already been used",
+            });
+        }
+
+        if (
+            user.emailVerificationExpiresAt &&
+            user.emailVerificationExpiresAt.getTime() < now().getTime()
+        ) {
+            return res.status(400).json({
+                message: "This verification link has expired. Please request a new one.",
+            });
+        }
+
+        user.isEmailVerified = true;
+        user.emailVerificationTokenHash = null;
+        user.emailVerificationExpiresAt = null;
+        user.emailVerificationSentAt = null;
+        await user.save();
+
+        res.status(200).json({
+            message: "Email verified successfully. You can now log in.",
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: "Error verifying email",
+            error: err.message,
+        });
+    }
+};
+
+//7. To Resend Verification Email
+
+const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required",
+            });
+        }
+
+        const user = await User.findOne({ email: normalizeEmail(email) });
+        if (!user) {
+            return res.status(404).json({
+                message: "No account was found for that email address",
+            });
+        }
+
+        if (isUserEmailVerified(user)) {
+            return res.status(400).json({
+                message: "This email is already verified. Please log in.",
+            });
+        }
+
+        await queueVerificationEmail(user);
+
+        res.status(200).json({
+            message: "Verification email sent successfully. Please check your inbox.",
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: "Error sending verification email",
+            error: err.message,
+        });
+    }
+};
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    getCurrentUser,
+    changePassword,
+    verifyEmail,
+    resendVerificationEmail,
+};

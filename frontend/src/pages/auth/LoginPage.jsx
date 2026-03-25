@@ -55,6 +55,13 @@ function LoginPage() {
                 navigate("/");
             }
         } catch (err) {
+            if (err?.status === 403 && err?.data?.verificationRequired) {
+                const pendingEmail = err?.data?.email || email.trim();
+                toast.info(getErrorMessage(err, "Please verify your email before logging in"));
+                navigate(`/verify-email?email=${encodeURIComponent(pendingEmail)}`);
+                return;
+            }
+
             const apiMessage = getErrorMessage(err, "Login failed");
             const normalizedMessage = apiMessage?.toLowerCase().includes("valid credentials")
                 ? "Incorrect email or password"
